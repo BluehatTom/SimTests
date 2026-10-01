@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>User Testing Simulator</title>
+<style>
+:root{
+  --bg:#eef2f6;--panel:#ffffff;--text:#1f2937;--muted:#5f6b7a;--border:#cbd5e1;
+  --accent:#9e1b32;--accent-dark:#761426;--user:#f3f4f6;--student:#fff7f8;
+  --good:#146c43;--warn:#8a4b08;--focus:#1d4ed8;
+}
+*{box-sizing:border-box} html{scroll-behavior:smooth}
+body{margin:0;font-family:Arial,Helvetica,sans-serif;line-height:1.55;color:var(--text);background:var(--bg)}
+.skip-link{position:absolute;left:-9999px}.skip-link:focus{left:1rem;top:1rem;z-index:9999;background:#fff;padding:.75rem 1rem;border:3px solid var(--focus)}
+header{background:var(--accent);color:#fff;padding:1.1rem 1rem} header .wrap,main,footer{max-width:1050px;margin:0 auto}
+h1{margin:0;font-size:clamp(1.8rem,4vw,2.6rem)} .tagline{margin:.3rem 0 0} main{padding:1rem}
+.panel{background:var(--panel);border:1px solid var(--border);border-radius:14px;padding:1.25rem;margin:1rem 0;box-shadow:0 2px 8px rgba(0,0,0,.05)}
+.hidden{display:none!important}.muted{color:var(--muted)}
+.badge{display:inline-block;border:1px solid var(--border);background:#f8fafc;padding:.3rem .65rem;border-radius:999px;font-weight:700;margin-bottom:.5rem}
+.scenario-grid{display:grid;grid-template-columns:1fr 2fr;gap:1rem}.sidebar{border:1px solid var(--border);border-radius:12px;padding:1rem;background:#f8fafc}
+.chat{border:1px solid var(--border);border-radius:12px;min-height:460px;max-height:620px;overflow:auto;background:#fff;padding:1rem}
+.msg{max-width:82%;padding:.8rem 1rem;border-radius:14px;margin:.6rem 0}.msg.student{margin-left:auto;background:var(--student);border:1px solid #e7b7c1}
+.msg.user{margin-right:auto;background:var(--user);border:1px solid var(--border)}.msg.system{max-width:100%;background:#f8fafc;border:1px dashed var(--border);font-size:.95rem}
+.msg strong{display:block;margin-bottom:.2rem}.choice-area{margin-top:1rem;border-top:1px solid var(--border);padding-top:1rem}.choice-buttons{display:grid;gap:.7rem}
+button{border:0;border-radius:10px;padding:.8rem 1rem;min-height:44px;font-size:1rem;font-weight:700;cursor:pointer}
+button.primary{background:var(--accent);color:#fff}button.primary:hover,button.primary:focus{background:var(--accent-dark)}
+button.secondary{background:#e2e8f0;color:#111827}.button-row{display:flex;gap:.75rem;flex-wrap:wrap;margin-top:1rem}
+button.choice-btn{text-align:left;background:#fff;color:var(--text);border:1px solid var(--border)}button.choice-btn:hover{background:#f8fafc}
+button:focus,textarea:focus{outline:3px solid var(--focus);outline-offset:2px}
+textarea{width:100%;min-height:100px;padding:.75rem;border:1px solid var(--border);border-radius:8px;font:inherit}
+.evidence-list{margin:.5rem 0 0;padding-left:1.2rem}.progressbar{width:100%;height:.8rem;background:#e2e8f0;border-radius:999px;overflow:hidden;margin-top:.4rem}
+.progressbar>div{height:100%;background:var(--accent);width:0}.report-card{border:1px solid var(--border);border-radius:10px;padding:1rem;margin:.8rem 0;background:#fafafa}
+.path-step{border-left:4px solid var(--border);padding-left:.8rem;margin:.8rem 0}
+@media(max-width:780px){.scenario-grid{grid-template-columns:1fr}.msg{max-width:95%}}
+@media(prefers-reduced-motion:reduce){*{scroll-behavior:auto!important;transition:none!important}}
+@media print{header,#intro,#simulator,.button-row{display:none!important}body{background:#fff}.panel{box-shadow:none;border:1px solid #999}}
+</style>
+</head>
+<body>
+<a class="skip-link" href="#main">Skip to main content</a>
+<header><div class="wrap"><h1>User Testing Simulator</h1><p class="tagline">A branching practice lab for interviewing users and following evidence.</p></div></header>
+<main id="main" tabindex="-1">
+
+<section id="intro" class="panel">
+<h2>Enter the simulation</h2>
+<p>You are part of a design team testing an early idea. Your job is to learn from a stakeholder—not to sell the idea, defend it, or get approval.</p>
+<p>Each question changes what you learn and what becomes available next. Some paths uncover useful evidence. Others lead to vague agreement, assumptions, or dead ends.</p>
+<div class="button-row"><button class="primary" id="startBtn">Begin Simulation</button></div>
+</section>
+
+<section id="simulator" class="panel hidden">
+<span class="badge" id="scenarioBadge"></span><h2 id="scenarioTitle"></h2>
+<div class="scenario-grid">
+<aside class="sidebar" aria-label="Scenario information">
+<h3>Testing Brief</h3><p><strong>Stakeholder:</strong><br><span id="stakeholder"></span></p>
+<p><strong>Design challenge:</strong><br><span id="challenge"></span></p>
+<p><strong>Goal:</strong><br><span id="goal"></span></p>
+<h3>Evidence Collected</h3><ul id="evidenceList" class="evidence-list"><li>No evidence yet.</li></ul>
+<h3>Conversation Depth</h3><div class="progressbar" aria-hidden="true"><div id="depthBar"></div></div><p class="muted" id="depthText">0 useful discoveries</p>
+</aside>
+<div>
+<div id="chat" class="chat" aria-live="polite" aria-label="Conversation with stakeholder"></div>
+<div id="choiceArea" class="choice-area"><h3>What do you ask next?</h3><div id="choiceButtons" class="choice-buttons"></div></div>
+<div id="decisionArea" class="hidden"><h3>Do you have enough evidence?</h3><p>You can continue asking questions or end the interview and record what you learned.</p>
+<div class="button-row"><button class="primary" id="continueBtn">Keep Interviewing</button><button class="secondary" id="endInterviewBtn">End Interview</button></div></div>
+</div></div>
+</section>
+
+<section id="debrief" class="panel hidden">
+<h2>Scenario Debrief</h2><div id="debriefContent"></div>
+<label for="scenarioReflection"><strong>What was the most important thing you learned from this stakeholder?</strong></label>
+<textarea id="scenarioReflection"></textarea>
+<div class="button-row"><button class="primary" id="nextScenarioBtn">Continue</button></div>
+</section>
+
+<section id="finalReflection" class="panel hidden">
+<h2>Final Reflection</h2>
+<label for="r1"><strong>1. Which kinds of questions helped you uncover the most useful evidence?</strong></label><textarea id="r1"></textarea>
+<label for="r2"><strong>2. When did the conversation become less useful, and why?</strong></label><textarea id="r2"></textarea>
+<label for="r3"><strong>3. How should user-testing evidence influence the next version of a prototype?</strong></label><textarea id="r3"></textarea>
+<div class="button-row"><button class="primary" id="buildReportBtn">Build My Report</button></div>
+</section>
+
+<section id="report" class="panel hidden">
+<h2>User Testing Simulation Report</h2><div id="reportContent"></div>
+<div class="button-row"><button class="primary" id="printBtn">Print / Save as PDF</button><button class="secondary" id="restartBtn">Restart Simulation</button></div>
+</section>
+</main>
+<footer><p>User Testing Simulator · Creativity and Design Thinking</p></footer>
+
+<script>
+const scenarios = [
+{
+title:"Campus Activities",stakeholder:"Jordan, a 19-year-old commuter student",
+challenge:"Your team wants to increase commuter participation in campus activities.",
+goal:"Understand what actually influences Jordan's decision to attend or skip events.",
+opening:"You meet Jordan after class and explain that you are trying to understand how commuter students experience campus events.",start:"start",
+nodes:{
+start:{options:[
+{q:"Why don't you attend more campus events?",next:"defensive",type:"Broad / judgmental"},
+{q:"Tell me about the last time you considered attending a campus event.",next:"lastEvent",type:"Behavioral / experience-based"},
+{q:"Would better advertising make you attend more events?",next:"advertising",type:"Leading / solution-oriented"}]},
+defensive:{response:"I don't know. I'm busy, I guess.",evidence:null,note:"The question puts Jordan in a position of defending behavior, so the answer stays general.",options:[
+{q:"What usually happens between your last class and when you leave campus?",next:"schedule",type:"Behavioral follow-up"},
+{q:"So time is probably the main problem?",next:"leadingTime",type:"Leading"}]},
+advertising:{response:"Maybe. Better advertising could help.",evidence:null,note:"Jordan agrees with the idea, but you still do not know whether advertising caused the behavior.",options:[
+{q:"How did you hear about the last event you considered?",next:"heard",type:"Behavioral follow-up"},
+{q:"Would Instagram be the best place to advertise?",next:"instagram",type:"Solution-oriented"}]},
+lastEvent:{response:"There was a career event last month. I saw it on Instagram, but it started at 6:00. My last class ended at 2:30, and I didn't want to wait around for three hours.",evidence:"Jordan knew about an event but skipped it because of the long gap between class and event time.",note:"A real past event reveals a concrete barrier.",options:[
+{q:"What did you do after your last class that day?",next:"leftCampus",type:"Behavioral follow-up"},
+{q:"Would you have attended if it started at 3:00?",next:"hypotheticalTime",type:"Hypothetical"}]},
+schedule:{response:"Usually I go straight to my car. If I have work later, I grab food on the way and head home.",evidence:"Jordan's normal routine is to leave campus immediately after class.",note:"This gives you observable context about Jordan's routine.",options:[
+{q:"Tell me about a time you stayed on campus after class.",next:"exception",type:"Exception-seeking"},
+{q:"Would free food make you stay?",next:"freeFood",type:"Solution-oriented"}]},
+heard:{response:"Instagram. I actually saw the post twice.",evidence:"Jordan was aware of the event through Instagram.",note:"This weakens the assumption that awareness was the main problem.",options:[
+{q:"What happened after you saw the post?",next:"lastEvent",type:"Behavioral follow-up"},
+{q:"Should we post more often?",next:"instagram",type:"Solution-oriented"}]},
+leftCampus:{response:"I drove home. It takes about 35 minutes, so once I leave I almost never come back.",evidence:"A 35-minute commute makes returning to campus unlikely once Jordan leaves.",note:"This exposes a structural constraint, not simply a preference.",options:[
+{q:"Tell me about a time you stayed on campus for something.",next:"exception",type:"Exception-seeking"},
+{q:"Would online events solve that?",next:"online",type:"Solution-oriented"}]},
+exception:{response:"I stayed once for a club meeting because it started 20 minutes after class. A friend was going too, so we got coffee and went together.",evidence:"Jordan has stayed when an event began soon after class and when a friend also attended.",note:"Exceptions can reveal conditions that support the desired behavior.",options:[
+{q:"What mattered more that day—the timing or having a friend there?",next:"priority",type:"Comparative follow-up"},
+{q:"Would a buddy system fix the problem?",next:"buddy",type:"Solution-leading"}]},
+priority:{response:"Probably timing first. If I had to wait three hours, even a friend wouldn't make me stay.",evidence:"Timing appears more important than social motivation for Jordan.",note:"This helps prioritize evidence without jumping directly to a solution.",options:[]},
+leadingTime:{response:"Yeah, probably.",evidence:null,note:"Agreement gives little confidence because the question suggested the explanation.",options:[]},
+instagram:{response:"Sure, I use Instagram a lot.",evidence:null,note:"This confirms platform preference but not the cause of nonattendance.",options:[]},
+hypotheticalTime:{response:"Maybe. Three o'clock sounds better.",evidence:null,note:"Hypothetical intent is weaker evidence than actual behavior.",options:[]},
+freeFood:{response:"Free food is always nice.",evidence:null,note:"Positive reaction does not establish that food would change attendance.",options:[]},
+online:{response:"Maybe for some things, but I already spend a lot of time online.",evidence:null,note:"The proposed solution may create a different experience rather than solving the original problem.",options:[]},
+buddy:{response:"That could be cool.",evidence:null,note:"The user is evaluating your idea instead of describing the underlying need.",options:[]}
+}},
+{
+title:"Advising Check-In",stakeholder:"Maya, a first-year student",
+challenge:"Your team has prototyped a QR-code check-in process for academic advising.",
+goal:"Understand where the new process creates confusion.",
+opening:"Maya has just completed a simulated advising check-in using your prototype.",start:"start",
+nodes:{
+start:{options:[
+{q:"Was the check-in easy to use?",next:"easy",type:"Closed / evaluative"},
+{q:"Walk me through what you did when you entered the office.",next:"walkthrough",type:"Behavioral walkthrough"},
+{q:"Don't you think the QR code is faster?",next:"leading",type:"Leading"}]},
+easy:{response:"Mostly, yes.",evidence:null,note:"A general evaluation hides specific moments of confusion.",options:[
+{q:"What happened first?",next:"walkthrough",type:"Behavioral follow-up"},
+{q:"What would make it even easier?",next:"solutionIdeas",type:"Solution request"}]},
+leading:{response:"I guess it probably is.",evidence:null,note:"The question signals the answer you want.",options:[
+{q:"What did you do after scanning the code?",next:"afterScan",type:"Behavioral follow-up"},
+{q:"Would you rather use an app?",next:"app",type:"Solution-oriented"}]},
+walkthrough:{response:"I came in looking for a front desk. Then I noticed the QR sign and scanned it. After that I wasn't sure whether I was checked in or still needed to talk to someone.",evidence:"Maya initially looked for a front desk and was uncertain whether scanning completed check-in.",note:"A walkthrough reveals both expectation and confusion.",options:[
+{q:"What made you unsure after scanning?",next:"confirmation",type:"Clarifying follow-up"},
+{q:"Where did you expect the front desk to be?",next:"expectation",type:"Mental-model follow-up"}]},
+afterScan:{response:"I saw a message on my phone, but I wasn't sure whether it meant 'wait here' or 'you're done.'",evidence:"The post-scan message does not clearly communicate the next action.",note:"You now have a specific usability issue.",options:[
+{q:"What did you expect the message to tell you?",next:"confirmation",type:"Expectation follow-up"},
+{q:"Would a green check mark solve that?",next:"greenCheck",type:"Solution-leading"}]},
+confirmation:{response:"I expected something like 'You're checked in. Take a seat and we'll call your name.'",evidence:"Maya needs explicit confirmation and a clear next step after scanning.",note:"The user's own language suggests what information is missing.",options:[]},
+expectation:{response:"Right inside the door. That's what most offices have.",evidence:"Maya's prior experience creates an expectation of a visible human check-in point.",note:"Mental models affect how users interpret a new process.",options:[]},
+solutionIdeas:{response:"Maybe clearer signs or someone standing there.",evidence:null,note:"User-generated solutions can be useful later, but they do not replace understanding the problem.",options:[]},
+app:{response:"Maybe, but I don't really want another app.",evidence:null,note:"This tests a new concept rather than the existing check-in experience.",options:[]},
+greenCheck:{response:"Yeah, that might help.",evidence:null,note:"The user is reacting to your proposed feature rather than defining the information need.",options:[]}
+}},
+{
+title:"Food Pickup Process",stakeholder:"Taylor, a student picking up a simulated café order",
+challenge:"Your team is testing separate shelves for mobile and in-person orders.",
+goal:"Find bottlenecks and moments of confusion in the pickup process.",
+opening:"Taylor has just completed the pickup simulation while you observed.",start:"start",
+nodes:{
+start:{options:[
+{q:"Did you get your food?",next:"gotFood",type:"Closed outcome"},
+{q:"Walk me through what you were thinking once your order was ready.",next:"thinkAloud",type:"Think-aloud"},
+{q:"Were the shelf labels confusing?",next:"labels",type:"Leading"}]},
+gotFood:{response:"Yes.",evidence:null,note:"The task succeeded eventually, but this tells you nothing about friction.",options:[
+{q:"What happened between hearing your name and picking up the order?",next:"thinkAloud",type:"Behavioral follow-up"},
+{q:"So the system worked okay?",next:"worked",type:"Leading"}]},
+labels:{response:"A little.",evidence:null,note:"You may be confirming your own suspicion rather than discovering the user's experience.",options:[
+{q:"What did you notice first when you walked toward the pickup area?",next:"firstNotice",type:"Observation follow-up"},
+{q:"Should the signs be bigger?",next:"bigger",type:"Solution-oriented"}]},
+thinkAloud:{response:"I saw two shelves and didn't know which one was mine. I checked the screen, then walked to the mobile shelf first even though I ordered in person.",evidence:"Taylor could not immediately tell which shelf contained the order and went to the wrong one first.",note:"Think-aloud questions expose both action and reasoning.",options:[
+{q:"What made you choose the mobile shelf first?",next:"visualCue",type:"Causal follow-up"},
+{q:"What did you do when your order wasn't there?",next:"recovery",type:"Recovery follow-up"}]},
+firstNotice:{response:"The screen with order names. I didn't notice the shelf labels until I got closer.",evidence:"The order-status screen attracts attention before the shelf labels.",note:"This reveals the visual hierarchy of the space.",options:[
+{q:"How close did you need to be before you noticed the shelf labels?",next:"distance",type:"Specific follow-up"},
+{q:"Would brighter colors help?",next:"colors",type:"Solution-leading"}]},
+visualCue:{response:"It was closer to me and had more bags on it, so I assumed that was where active orders were.",evidence:"Shelf position and the number of visible bags influenced Taylor more than the labels.",note:"The issue is not only label size; spatial cues shaped the decision.",options:[]},
+recovery:{response:"I looked around, saw the other shelf label, and crossed over. It wasn't terrible, but people behind me had to move around me.",evidence:"Recovering from the mistake created cross-traffic and a small bottleneck.",note:"Recovery behavior can reveal downstream effects of confusion.",options:[]},
+distance:{response:"Probably six or seven feet. From farther away the words just looked like little signs.",evidence:"The shelf labels are not legible early enough to guide Taylor's route.",note:"Specific details make evidence actionable.",options:[]},
+worked:{response:"I guess.",evidence:null,note:"Agreement does not reveal process quality.",options:[]},
+bigger:{response:"Probably.",evidence:null,note:"This tests your proposed fix instead of the underlying problem.",options:[]},
+colors:{response:"Maybe. Different colors could help.",evidence:null,note:"A proposed visual solution may help, but evidence about the user's navigation problem should come first.",options:[]}
+}}
+];
+
+let scenarioIndex=0,currentNode=null,scenarioLogs=[],currentLog=null,interviewEnded=false;
+const $=id=>document.getElementById(id);
+
+function addMessage(kind,speaker,text){
+  const div=document.createElement("div"); div.className=`msg ${kind}`;
+  div.innerHTML=`<strong>${speaker}</strong>${text}`; $("chat").appendChild(div); $("chat").scrollTop=$("chat").scrollHeight;
+}
+function addSystem(text){const div=document.createElement("div");div.className="msg system";div.textContent=text;$("chat").appendChild(div);$("chat").scrollTop=$("chat").scrollHeight;}
+function updateEvidence(){
+  const list=$("evidenceList"); list.innerHTML="";
+  if(!currentLog.evidence.length) list.innerHTML="<li>No evidence yet.</li>";
+  else currentLog.evidence.forEach(e=>{const li=document.createElement("li");li.textContent=e;list.appendChild(li);});
+  const useful=currentLog.evidence.length; $("depthText").textContent=`${useful} useful ${useful===1?"discovery":"discoveries"}`; $("depthBar").style.width=`${Math.min(useful*30,100)}%`;
+}
+function renderChoices(node){
+  const area=$("choiceButtons"); area.innerHTML=""; $("decisionArea").classList.add("hidden"); $("choiceArea").classList.remove("hidden");
+  const opts=node.options||[];
+  if(!opts.length){$("choiceArea").classList.add("hidden");$("decisionArea").classList.remove("hidden");return;}
+  opts.forEach(opt=>{const b=document.createElement("button");b.className="choice-btn";b.type="button";b.textContent=opt.q;b.addEventListener("click",()=>chooseOption(opt));area.appendChild(b);});
+  if(currentLog.turns.length>=2){const end=document.createElement("button");end.className="secondary";end.type="button";end.textContent="I think I have enough evidence";end.addEventListener("click",finishInterview);area.appendChild(end);}
+}
+function chooseOption(opt){
+  const s=scenarios[scenarioIndex]; addMessage("student","You",opt.q);
+  const next=s.nodes[opt.next];
+  currentLog.turns.push({question:opt.q,type:opt.type,response:next.response,note:next.note,evidence:next.evidence});
+  if(next.response) addMessage("user",s.stakeholder,next.response);
+  if(next.note) addSystem(`Interview note: ${next.note}`);
+  if(next.evidence && !currentLog.evidence.includes(next.evidence)){currentLog.evidence.push(next.evidence);updateEvidence();}
+  currentNode=opt.next; renderChoices(next);
+}
+function startScenario(){
+  const s=scenarios[scenarioIndex]; currentNode=s.start; interviewEnded=false;
+  currentLog={title:s.title,stakeholder:s.stakeholder,turns:[],evidence:[],reflection:""};
+  $("scenarioBadge").textContent=`Scenario ${scenarioIndex+1} of ${scenarios.length}`;$("scenarioTitle").textContent=s.title;$("stakeholder").textContent=s.stakeholder;$("challenge").textContent=s.challenge;$("goal").textContent=s.goal;
+  $("chat").innerHTML="";$("evidenceList").innerHTML="<li>No evidence yet.</li>";$("depthBar").style.width="0";$("depthText").textContent="0 useful discoveries";
+  addSystem(s.opening);addMessage("user",s.stakeholder,"Okay—what would you like to know?");renderChoices(s.nodes[s.start]);
+  $("simulator").classList.remove("hidden");$("debrief").classList.add("hidden");$("finalReflection").classList.add("hidden");
+}
+function finishInterview(){
+  if(interviewEnded)return; interviewEnded=true;$("choiceArea").classList.add("hidden");$("decisionArea").classList.add("hidden");scenarioLogs[scenarioIndex]=currentLog;
+  const useful=currentLog.evidence.length;let message="";
+  if(useful>=3)message="You uncovered several specific pieces of behavioral evidence before ending the interview.";
+  else if(useful>=1)message="You uncovered some useful evidence. A few additional behavioral follow-ups might have revealed more.";
+  else message="Most of the conversation stayed at the level of opinions, agreement, or hypothetical reactions. The next step would be to ask about a real past experience or observable behavior.";
+  $("debriefContent").innerHTML=`<p>${message}</p><p><strong>Useful evidence collected:</strong> ${useful}</p><ul>${currentLog.evidence.length?currentLog.evidence.map(e=>`<li>${e}</li>`).join(""):"<li>No specific behavioral evidence recorded.</li>"}</ul>`;
+  $("scenarioReflection").value="";$("nextScenarioBtn").textContent=scenarioIndex<scenarios.length-1?"Next Scenario":"Continue to Final Reflection";
+  $("simulator").classList.add("hidden");$("debrief").classList.remove("hidden");
+}
+$("continueBtn").addEventListener("click",()=>{$("decisionArea").classList.add("hidden");const s=scenarios[scenarioIndex];const node=s.nodes[currentNode];if((node.options||[]).length)renderChoices(node);else{$("decisionArea").classList.remove("hidden");addSystem("This conversation path has reached a natural stopping point.");}});
+$("endInterviewBtn").addEventListener("click",finishInterview);
+$("startBtn").addEventListener("click",()=>{$("intro").classList.add("hidden");startScenario();});
+$("nextScenarioBtn").addEventListener("click",()=>{currentLog.reflection=$("scenarioReflection").value.trim();scenarioLogs[scenarioIndex]=currentLog;scenarioIndex++;$("debrief").classList.add("hidden");if(scenarioIndex<scenarios.length)startScenario();else $("finalReflection").classList.remove("hidden");});
+$("buildReportBtn").addEventListener("click",()=>{
+  const r1=$("r1").value.trim(),r2=$("r2").value.trim(),r3=$("r3").value.trim();
+  const sections=scenarioLogs.map((log,i)=>{
+    const path=log.turns.map((t,j)=>`<div class="path-step"><p><strong>Step ${j+1} — ${t.type}</strong></p><p><strong>You asked:</strong> ${t.question}</p><p><strong>User responded:</strong> ${t.response}</p><p><strong>What this revealed:</strong> ${t.note}</p>${t.evidence?`<p><strong>Evidence added:</strong> ${t.evidence}</p>`:""}</div>`).join("");
+    return `<div class="report-card"><h3>Scenario ${i+1}: ${log.title}</h3><p><strong>Stakeholder:</strong> ${log.stakeholder}</p><p><strong>Questions asked:</strong> ${log.turns.length}</p><p><strong>Useful evidence collected:</strong> ${log.evidence.length}</p><h4>Conversation Path</h4>${path||"<p>No questions recorded.</p>"}<h4>Evidence</h4><ul>${log.evidence.length?log.evidence.map(e=>`<li>${e}</li>`).join(""):"<li>No specific behavioral evidence recorded.</li>"}</ul><p><strong>Your scenario reflection:</strong><br>${log.reflection||"No response entered."}</p></div>`;
+  }).join("");
+  $("reportContent").innerHTML=`<p>This report shows the path you took through each interview. Different questions produced different evidence and different opportunities for follow-up.</p>${sections}<div class="report-card"><h3>Final Reflection</h3><p><strong>Questions that produced useful evidence:</strong><br>${r1||"No response entered."}</p><p><strong>When conversations became less useful:</strong><br>${r2||"No response entered."}</p><p><strong>How testing should influence prototypes:</strong><br>${r3||"No response entered."}</p></div><div class="report-card"><h3>Key Takeaway</h3><p>User testing works best when you follow what the user actually says and does. Strong interviewers do not simply move through a list of questions—they notice evidence, ask useful follow-ups, and change direction when the conversation reveals something unexpected.</p></div>`;
+  $("finalReflection").classList.add("hidden");$("report").classList.remove("hidden");
+});
+$("printBtn").addEventListener("click",()=>window.print());
+$("restartBtn").addEventListener("click",()=>{scenarioIndex=0;currentNode=null;scenarioLogs=[];currentLog=null;$("r1").value="";$("r2").value="";$("r3").value="";$("report").classList.add("hidden");$("intro").classList.remove("hidden");});
+</script>
+</body>
+</html>
