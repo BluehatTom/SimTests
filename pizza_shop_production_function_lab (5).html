@@ -79,6 +79,53 @@
     box-shadow:var(--shadow);
   }
   .card h2,.card h3{margin-top:0}
+
+  .var-badge{
+    display:inline-flex;
+    align-items:center;
+    justify-content:center;
+    min-width:1.75rem;
+    height:1.75rem;
+    padding:0 .45rem;
+    margin-right:.35rem;
+    border:2px solid #18202a;
+    border-radius:.45rem;
+    background:#fff;
+    color:#18202a;
+    font-family:ui-monospace,SFMono-Regular,Menlo,monospace;
+    font-weight:900;
+  }
+  .formula-map{
+    margin:0 0 16px;
+    padding:14px;
+    background:#f8fafc;
+    border:1px solid var(--line);
+    border-radius:14px;
+  }
+  .formula-map h3{
+    margin:0 0 8px;
+    font-size:1rem;
+  }
+  .formula-main{
+    font-family:ui-monospace,SFMono-Regular,Menlo,monospace;
+    font-size:1.05rem;
+    font-weight:800;
+    margin-bottom:8px;
+  }
+  .formula-values{
+    font-family:ui-monospace,SFMono-Regular,Menlo,monospace;
+    background:white;
+    border:1px solid var(--line);
+    border-radius:9px;
+    padding:9px 10px;
+    overflow-wrap:anywhere;
+  }
+  .symbol-key{
+    margin-top:8px;
+    color:var(--muted);
+    font-size:.88rem;
+  }
+
   .control{padding:13px 0;border-bottom:1px solid #edf0f3}
   .control:last-child{border-bottom:none}
   .control-top{display:flex;justify-content:space-between;gap:12px;align-items:baseline}
@@ -444,34 +491,48 @@
         </div>
         <p class="hint" id="modeHelp"><b>Short run:</b> ovens are fixed. Add workers and watch marginal product eventually fall.</p>
 
+        <div class="formula-map" aria-label="Production function variable map">
+          <h3>Connect the sliders to the production function</h3>
+          <div class="formula-main">Q = f(L, K, N, T, E)</div>
+          <div class="formula-values" id="formulaValues" aria-live="polite">
+            Q = f(L = 4, K = 2, N = 320, T = 1.00, E = 1.00)
+          </div>
+          <div class="symbol-key">
+            <b>Q</b> = output (pizzas), <b>L</b> = labor, <b>K</b> = capital,
+            <b>N</b> = natural resources/materials, <b>T</b> = technology,
+            <b>E</b> = entrepreneurship/organization.
+            Textbooks may use slightly different symbols, but the economic ideas are the same.
+          </div>
+        </div>
+
         <div class="control">
-          <div class="control-top"><label for="workers">Labor — workers</label><span class="value" id="workersVal">4</span></div>
+          <div class="control-top"><label for="workers"><span class="var-badge" aria-hidden="true">L</span> Labor — workers</label><span class="value" id="workersVal">4</span></div>
           <input id="workers" type="range" min="0" max="12" step="1" value="4">
-          <div class="hint">People taking orders, prepping, baking, and boxing pizzas.</div>
+          <div class="hint"><b>L = Labor.</b> People taking orders, prepping, baking, and boxing pizzas.</div>
         </div>
 
         <div class="control">
-          <div class="control-top"><label for="ovens">Capital — ovens</label><span class="value" id="ovensVal">2</span></div>
+          <div class="control-top"><label for="ovens"><span class="var-badge" aria-hidden="true">K</span> Capital — ovens</label><span class="value" id="ovensVal">2</span></div>
           <input id="ovens" type="range" min="1" max="4" step="1" value="2" disabled>
-          <div class="hint">Physical capital. More ovens can relieve crowding and raise capacity.</div>
+          <div class="hint"><b>K = Capital.</b> Physical capital such as ovens and equipment. More capital can relieve crowding and raise capacity.</div>
         </div>
 
         <div class="control">
-          <div class="control-top"><label for="materials">Materials — ingredient capacity</label><span class="value" id="materialsVal">320 pizzas</span></div>
+          <div class="control-top"><label for="materials"><span class="var-badge" aria-hidden="true">N</span> Materials / natural resources — ingredient capacity</label><span class="value" id="materialsVal">320 pizzas</span></div>
           <input id="materials" type="range" min="80" max="560" step="20" value="320">
-          <div class="hint">Enough dough, sauce, cheese, and toppings for this many pizzas.</div>
+          <div class="hint"><b>N = Natural resources/material inputs.</b> Enough dough, sauce, cheese, and toppings for this many pizzas.</div>
         </div>
 
         <div class="control">
-          <div class="control-top"><label for="technology">Technology / process</label><span class="value" id="technologyVal">100%</span></div>
+          <div class="control-top"><label for="technology"><span class="var-badge" aria-hidden="true">T</span> Technology / process</label><span class="value" id="technologyVal">100%</span></div>
           <input id="technology" type="range" min="70" max="140" step="5" value="100">
-          <div class="hint">Ordering system, oven quality, prep tools, layout, and know-how.</div>
+          <div class="hint"><b>T = Technology.</b> Ordering systems, oven quality, prep tools, layout, production methods, and know-how.</div>
         </div>
 
         <div class="control">
-          <div class="control-top"><label for="organization">Entrepreneurship / organization</label><span class="value" id="organizationVal">100%</span></div>
+          <div class="control-top"><label for="organization"><span class="var-badge" aria-hidden="true">E</span> Entrepreneurship / organization</label><span class="value" id="organizationVal">100%</span></div>
           <input id="organization" type="range" min="60" max="140" step="5" value="100">
-          <div class="hint">How well the owner/manager organizes people, workflow, decisions, and risk-taking.</div>
+          <div class="hint"><b>E = Entrepreneurship/organization.</b> How well resources, workflow, decisions, innovation, and risk-taking are coordinated.</div>
         </div>
 
         <button class="small-btn" id="resetBtn" style="width:100%;margin-top:14px">Reset shop</button>
@@ -481,17 +542,17 @@
         <div class="card">
           <div class="metrics">
             <div class="metric current">
-              <div class="k">Total Product</div>
+              <div class="k">Total Product (Q / TP)</div>
               <div class="v" id="tp">0</div>
               <div class="s">pizzas / shift</div>
             </div>
             <div class="metric">
-              <div class="k">Marginal Product</div>
+              <div class="k">Marginal Product (MP<sub>L</sub>)</div>
               <div class="v" id="mp">0</div>
               <div class="s">extra pizzas from latest worker</div>
             </div>
             <div class="metric">
-              <div class="k">Average Product</div>
+              <div class="k">Average Product (AP<sub>L</sub>)</div>
               <div class="v" id="ap">0</div>
               <div class="s">pizzas per worker</div>
             </div>
@@ -516,8 +577,8 @@
           <div class="insight" id="insight"></div>
 
           <div class="formula">
-            <code>Q = f(Labor, Capital, Materials, Technology, Organization)</code>
-            <small>This app uses an illustrative textbook-style production schedule: marginal product initially rises, then falls as diminishing marginal returns set in, reaches zero near the maximum of total product, and can become negative with severe overcrowding. It is not an estimated production function from a real pizza shop.</small>
+            <code>Q = f(L, K, N, T, E)</code>
+            <small>The letters are shorthand for the sliders above. The function says that pizza output depends on the combination of labor, capital, materials/natural resources, technology, and entrepreneurship/organization. The app uses an illustrative textbook-style production schedule rather than data estimated from a real pizza shop.</small>
           </div>
 
           <div class="shop">
@@ -697,7 +758,7 @@
       </div>
 
       <div class="challenge">
-        <b>Instructor prompt:</b> Ask students to explain <em>why</em> their plan works. Did they fix the actual bottleneck, or just spend money? What would happen if the target were higher?
+        <b>Reflection challenge:</b> Explain <em>why</em> your plan works. Did you fix the actual bottleneck, or just spend money? What would happen if the target were higher?
       </div>
     </div>
   </section>
@@ -864,6 +925,7 @@ const els = {
   workerIcons:document.getElementById('workerIcons'),
   ovenIcons:document.getElementById('ovenIcons'),
   accessibleSummary:document.getElementById('accessibleSummary'),
+  formulaValues:document.getElementById('formulaValues'),
   prodTable:document.getElementById('prodTable'),
   diminishCallout:document.getElementById('diminishCallout'),
   shortMode:document.getElementById('shortMode'),
@@ -952,6 +1014,10 @@ function setText(){
   els.materialsVal.textContent=M+' pizzas';
   els.technologyVal.textContent=Math.round(T*100)+'%';
   els.organizationVal.textContent=Math.round(O*100)+'%';
+  if(els.formulaValues){
+    els.formulaValues.textContent =
+      `Q = f(L = ${L}, K = ${K}, N = ${M}, T = ${T.toFixed(2)}, E = ${O.toFixed(2)})`;
+  }
 }
 function bottleneckText(L,K,M,T,O,Q){
   const potential = Math.round(coreOutput(L,K,T,O));
