@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Profit Maximization: Market Price, Costs & Output</title>
+  <style>
+    :root{
+      --miami:#c41230;
+      --miami-dark:#8c0d22;
+      --ink:#202124;
+      --muted:#5f6368;
+      --line:#d6d9de;
+      --blue:#315f9f;
+      --panel:#f7f7f8;
+      --card:#ffffff;
+      --border:#d9dde3;
+    }
+    body{
+      font-family:Arial,Helvetica,sans-serif;
+      margin:0;
+      padding:24px;
+      background:#fff;
+      color:var(--ink);
+    }
+    #profitLab{max-width:1180px;margin:0 auto}
+    .layout{display:grid;grid-template-columns:minmax(0,1.7fr) minmax(260px,.8fr);gap:16px}
+    .card{border:1px solid var(--border);border-radius:14px;background:var(--card);padding:16px}
+    .controls{display:grid;grid-template-columns:1fr;gap:16px}
+    .control{display:grid;grid-template-columns:minmax(150px,1fr) 2fr 72px;gap:12px;align-items:center}
+    input[type=range]{width:100%;accent-color:var(--miami)}
+    button{min-height:44px;padding:9px 14px;border-radius:9px;border:1px solid var(--border);background:var(--card);font-weight:700;cursor:pointer}
+    button:hover{background:#fff3f5}
+    button:focus-visible,input:focus-visible{outline:3px solid var(--miami);outline-offset:2px}
+    .graphWrap{overflow-x:auto}
+    svg{display:block;width:100%;min-width:560px;height:auto}
+    .gridline{stroke:var(--border);stroke-width:1}
+    .axis{stroke:var(--muted);stroke-width:1.3}
+    .mc{fill:none;stroke:var(--blue);stroke-width:3}
+    .mr{fill:none;stroke:var(--miami);stroke-width:3;stroke-dasharray:10 5}
+    .guide{stroke:var(--miami-dark);stroke-width:1.5;stroke-dasharray:4 4}
+    .optDot{fill:var(--miami);stroke:#fff;stroke-width:2}
+    .result{border-left:5px solid var(--miami);padding:12px 14px;background:#fff5f6;border-radius:8px}
+    .metrics{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+    .metric{border-top:4px solid var(--miami);padding-top:8px}
+    .big{font-size:1.35rem;font-weight:800}
+    .muted{color:var(--muted)}
+    .small{font-size:.9rem}
+    .legend{display:flex;flex-wrap:wrap;gap:18px;font-size:.9rem;margin-top:8px}
+    .swatch{display:inline-block;width:30px;vertical-align:middle;margin-right:6px}
+    .mcSwatch{border-top:3px solid var(--blue)}
+    .mrSwatch{border-top:3px dashed var(--miami)}
+    .toprow{display:flex;flex-wrap:wrap;justify-content:space-between;gap:12px;align-items:flex-start}
+    .row{display:flex;flex-wrap:wrap;gap:8px}
+    .rulegrid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+    .mt{margin-top:16px}
+    @media(max-width:800px){.layout,.rulegrid{grid-template-columns:1fr}}
+    @media(max-width:650px){.control{grid-template-columns:1fr}.metrics{grid-template-columns:1fr}}
+  </style>
+</head>
+<body>
+<div id="profitLab">
+  <div class="layout">
+    <section class="card">
+      <div class="toprow">
+        <div>
+          <h2>Find the profit-maximizing quantity</h2>
+          <p class="small muted">For a competitive firm, market price equals marginal revenue. Profit is maximized near the quantity where <strong>MR = MC</strong>.</p>
+        </div>
+        <button type="button" id="resetBtn">Reset</button>
+      </div>
+
+      <div class="graphWrap mt">
+        <svg id="pmChart" viewBox="0 0 720 420" role="img" aria-labelledby="pmTitle pmDesc">
+          <title id="pmTitle">Marginal revenue and marginal cost graph</title>
+          <desc id="pmDesc">Marginal revenue is horizontal at the market price. Marginal cost rises with output. The profit-maximizing quantity is highlighted where marginal revenue and marginal cost are closest.</desc>
+          <g id="pmGrid"></g>
+          <g id="pmAxes"></g>
+          <path id="mcPath" class="mc"></path>
+          <path id="mrPath" class="mr"></path>
+          <g id="pmMarks"></g>
+          <g id="pmLabels"></g>
+        </svg>
+      </div>
+
+      <div class="legend" aria-label="Graph legend">
+        <span><span class="swatch mcSwatch" aria-hidden="true"></span><strong>Marginal cost</strong> — solid</span>
+        <span><span class="swatch mrSwatch" aria-hidden="true"></span><strong>Marginal revenue</strong> — dashed</span>
+      </div>
+
+      <div class="metrics mt" id="metrics" aria-live="polite"></div>
+      <div class="result mt" id="explanation" aria-live="polite"></div>
+    </section>
+
+    <aside class="card">
+      <h2>Change the market</h2>
+      <p class="small muted">Move one slider at a time and watch the optimal quantity change.</p>
+
+      <div class="controls mt">
+        <div class="control">
+          <label for="price"><strong>Market price</strong><br><span class="small muted">Also equals MR</span></label>
+          <input id="price" type="range" min="2" max="14" step="0.5" value="6">
+          <output id="priceOut" for="price">$6.00</output>
+        </div>
+
+        <div class="control">
+          <label for="cost"><strong>Production costs</strong><br><span class="small muted">Shifts the MC curve</span></label>
+          <input id="cost" type="range" min="-2" max="5" step="0.5" value="0">
+          <output id="costOut" for="cost">Normal</output>
+        </div>
+      </div>
+
+      <div class="mt">
+        <h3>Quick scenarios</h3>
+        <div class="row">
+          <button type="button" class="scenario" data-type="priceup">Price rises</button>
+          <button type="button" class="scenario" data-type="pricedown">Price falls</button>
+          <button type="button" class="scenario" data-type="costup">Costs rise</button>
+          <button type="button" class="scenario" data-type="costdown">Costs fall</button>
+        </div>
+      </div>
+
+      <div class="mt small">
+        <h3>What should happen?</h3>
+        <p><strong>Higher market price:</strong> MR moves up → firm usually produces more.</p>
+        <p><strong>Lower market price:</strong> MR moves down → firm usually produces less.</p>
+        <p><strong>Higher costs:</strong> MC shifts up → firm usually produces less.</p>
+        <p><strong>Lower costs:</strong> MC shifts down → firm usually produces more.</p>
+      </div>
+    </aside>
+  </div>
+
+  <section class="card mt">
+    <h2>The decision rule</h2>
+    <p>The firm compares the <strong>marginal revenue from the next unit</strong> with the <strong>marginal cost of producing it</strong>.</p>
+    <div class="rulegrid small mt">
+      <div><strong>MR &gt; MC</strong><br>Producing another unit adds more revenue than cost → increase output.</div>
+      <div><strong>MR ≈ MC</strong><br>This is the profit-maximizing neighborhood.</div>
+      <div><strong>MC &gt; MR</strong><br>The next unit costs more than it adds in revenue → do not expand output.</div>
+    </div>
+  </section>
+</div>
+
+<script>
+(()=>{
+ const root=document.getElementById('profitLab');
+ const $=s=>root.querySelector(s), $$=s=>[...root.querySelectorAll(s)];
+ const price=$('#price'), cost=$('#cost'), priceOut=$('#priceOut'), costOut=$('#costOut');
+ const grid=$('#pmGrid'),axes=$('#pmAxes'),marks=$('#pmMarks'),labels=$('#pmLabels'),mcPath=$('#mcPath'),mrPath=$('#mrPath'),svg=$('#pmChart');
+ const L=65,R=685,T=25,B=355,W=R-L,H=B-T,QMAX=140,YMAX=18;
+ const x=q=>L+(q/QMAX)*W, y=v=>B-(v/YMAX)*H;
+ const money=v=>'$'+v.toFixed(2);
+
+ function mc(q){
+   const shift=+cost.value;
+   return Math.max(0.5,1.35 + 0.00068*Math.pow(q-38,2) + shift);
+ }
+
+ function optimal(){
+   const p=+price.value;
+   let bestQ=0,bestDiff=Infinity;
+   for(let q=0;q<=QMAX;q++){
+     const diff=Math.abs(mc(q)-p);
+     if(diff<bestDiff){
+       bestDiff=diff;
+       bestQ=q;
+     }
+   }
+   return bestQ;
+ }
+
+ function svgEl(tag,attrs={},text=''){
+   const e=document.createElementNS('http://www.w3.org/2000/svg',tag);
+   Object.entries(attrs).forEach(([k,v])=>e.setAttribute(k,v));
+   if(text)e.textContent=text;
+   return e;
+ }
+
+ function curvePath(){
+   let d='';
+   for(let q=0;q<=QMAX;q+=2){
+     d+=(q===0?'M':'L')+x(q).toFixed(1)+','+y(mc(q)).toFixed(1);
+   }
+   return d;
+ }
+
+ function render(){
+   const p=+price.value,qStar=optimal(),mcStar=mc(qStar);
+   priceOut.textContent=money(p);
+
+   const c=+cost.value;
+   costOut.textContent=c===0?'Normal':c>0?'+'+money(c):'−'+money(Math.abs(c));
+
+   grid.innerHTML='';
+   axes.innerHTML='';
+   marks.innerHTML='';
+   labels.innerHTML='';
+
+   [0,3,6,9,12,15,18].forEach(v=>{
+     const yy=y(v);
+     grid.appendChild(svgEl('line',{x1:L,y1:yy,x2:R,y2:yy,class:'gridline'}));
+     labels.appendChild(svgEl('text',{x:L-9,y:yy+4,'text-anchor':'end','font-size':'12',fill:'#5f6368'},'$'+v));
+   });
+
+   [0,20,40,60,80,100,120,140].forEach(q=>{
+     const xx=x(q);
+     grid.appendChild(svgEl('line',{x1:xx,y1:T,x2:xx,y2:B,class:'gridline'}));
+     labels.appendChild(svgEl('text',{x:xx,y:B+22,'text-anchor':'middle','font-size':'12',fill:'#5f6368'},String(q)));
+   });
+
+   axes.appendChild(svgEl('line',{x1:L,y1:B,x2:R,y2:B,class:'axis'}));
+   axes.appendChild(svgEl('line',{x1:L,y1:T,x2:L,y2:B,class:'axis'}));
+
+   labels.appendChild(svgEl('text',{x:(L+R)/2,y:405,'text-anchor':'middle','font-size':'14','font-weight':'700',fill:'#202124'},'Quantity'));
+   labels.appendChild(svgEl('text',{x:18,y:(T+B)/2,transform:'rotate(-90 18 '+((T+B)/2)+')','text-anchor':'middle','font-size':'14','font-weight':'700',fill:'#202124'},'Marginal cost / marginal revenue ($)'));
+
+   mcPath.setAttribute('d',curvePath());
+   mrPath.setAttribute('d',`M${L},${y(p)} L${R},${y(p)}`);
+
+   marks.appendChild(svgEl('line',{x1:x(qStar),y1:y(p),x2:x(qStar),y2:B,class:'guide'}));
+   marks.appendChild(svgEl('circle',{cx:x(qStar),cy:y(mcStar),r:7,class:'optDot'}));
+
+   labels.appendChild(svgEl('text',{x:R-5,y:y(p)-8,'text-anchor':'end','font-size':'13','font-weight':'700',fill:'#c41230'},'MR = market price'));
+   labels.appendChild(svgEl('text',{x:R-5,y:Math.max(T+15,y(mc(QMAX))-8),'text-anchor':'end','font-size':'13','font-weight':'700',fill:'#315f9f'},'MC'));
+   labels.appendChild(svgEl('text',{x:x(qStar),y:B+42,'text-anchor':'middle','font-size':'12','font-weight':'700',fill:'#8c0d22'},'Q* ≈ '+qStar));
+
+   $('#metrics').innerHTML=
+     `<div class="metric"><div class="small muted">Market price / MR</div><div class="big">${money(p)}</div></div>
+      <div class="metric"><div class="small muted">Profit-maximizing output</div><div class="big">${qStar} units</div></div>
+      <div class="metric"><div class="small muted">MC at Q*</div><div class="big">${money(mcStar)}</div></div>`;
+
+   let msg=`At a market price of <strong>${money(p)}</strong>, the firm should produce about <strong>${qStar} units</strong>, where marginal cost is closest to marginal revenue.`;
+   if(c>0)msg+=` Higher production costs shift MC upward, reducing the quantity the firm wants to produce.`;
+   if(c<0)msg+=` Lower production costs shift MC downward, allowing the firm to profitably produce more.`;
+   $('#explanation').innerHTML=msg;
+
+   svg.setAttribute('aria-label',`Marginal revenue is ${money(p)}. Profit-maximizing output is approximately ${qStar} units. Marginal cost there is ${money(mcStar)}.`);
+   price.setAttribute('aria-valuetext',`Market price and marginal revenue ${money(p)}. Profit-maximizing quantity approximately ${qStar} units.`);
+   cost.setAttribute('aria-valuetext',c===0?'Production costs at normal level':`Production costs shifted ${c>0?'up':'down'} by ${money(Math.abs(c))}`);
+ }
+
+ [price,cost].forEach(el=>el.addEventListener('input',render));
+
+ $$('.scenario').forEach(btn=>btn.addEventListener('click',()=>{
+   const t=btn.dataset.type;
+   if(t==='priceup')price.value=10;
+   if(t==='pricedown')price.value=4;
+   if(t==='costup')cost.value=3;
+   if(t==='costdown')cost.value=-1.5;
+   render();
+ }));
+
+ $('#resetBtn').addEventListener('click',()=>{
+   price.value=6;
+   cost.value=0;
+   render();
+ });
+
+ render();
+})();
+</script>
+</body>
+</html>
