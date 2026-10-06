@@ -1,0 +1,1541 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Pizza Shop Production Function Lab</title>
+<style>
+  :root{
+    --bg:#f6f7f9;
+    --panel:#ffffff;
+    --ink:#18202a;
+    --muted:#5d6977;
+    --accent:#9e1b32;
+    --accent2:#1f5f8b;
+    --line:#d8dde4;
+    --good:#2e6b3f;
+    --warn:#8a5a00;
+    --soft:#f0f3f6;
+    --shadow:0 8px 24px rgba(24,32,42,.08);
+  }
+  *{box-sizing:border-box}
+  body{
+    margin:0;
+    font-family:Inter,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+    background:var(--bg);
+    color:var(--ink);
+    line-height:1.45;
+  }
+  button,input,select{font:inherit}
+  .wrap{max-width:1200px;margin:0 auto;padding:24px}
+  header{
+    background:linear-gradient(135deg,#151b22,#2d3641);
+    color:white;
+    border-radius:22px;
+    padding:28px;
+    box-shadow:var(--shadow);
+    margin-bottom:18px;
+  }
+  header h1{margin:0 0 6px;font-size:clamp(1.8rem,4vw,3rem);line-height:1.05}
+  header p{max-width:800px;margin:0;color:#e5e9ee;font-size:1.03rem}
+  .badge{
+    display:inline-block;
+    margin-top:14px;
+    background:#fff1f3;
+    color:#711124;
+    border:1px solid #f0c9d1;
+    border-radius:999px;
+    padding:6px 10px;
+    font-weight:700;
+    font-size:.86rem;
+  }
+
+  .tabs{
+    display:flex;gap:8px;flex-wrap:wrap;
+    margin:18px 0;
+  }
+  .tab{
+    border:1px solid var(--line);
+    background:white;
+    color:var(--ink);
+    border-radius:999px;
+    padding:10px 16px;
+    font-weight:700;
+    cursor:pointer;
+  }
+  .tab[aria-selected="true"]{
+    background:var(--accent);
+    color:white;
+    border-color:var(--accent);
+  }
+  .tabpanel[hidden]{display:none}
+
+  .grid{display:grid;grid-template-columns:360px 1fr;gap:18px}
+  .card{
+    background:var(--panel);
+    border:1px solid var(--line);
+    border-radius:18px;
+    padding:18px;
+    box-shadow:var(--shadow);
+  }
+  .card h2,.card h3{margin-top:0}
+
+  .var-badge{
+    display:inline-flex;
+    align-items:center;
+    justify-content:center;
+    min-width:1.75rem;
+    height:1.75rem;
+    padding:0 .45rem;
+    margin-right:.35rem;
+    border:2px solid #18202a;
+    border-radius:.45rem;
+    background:#fff;
+    color:#18202a;
+    font-family:ui-monospace,SFMono-Regular,Menlo,monospace;
+    font-weight:900;
+  }
+  .formula-map{
+    margin:0 0 16px;
+    padding:14px;
+    background:#f8fafc;
+    border:1px solid var(--line);
+    border-radius:14px;
+  }
+  .formula-map h3{
+    margin:0 0 8px;
+    font-size:1rem;
+  }
+  .formula-main{
+    font-family:ui-monospace,SFMono-Regular,Menlo,monospace;
+    font-size:1.05rem;
+    font-weight:800;
+    margin-bottom:8px;
+  }
+  .formula-values{
+    font-family:ui-monospace,SFMono-Regular,Menlo,monospace;
+    background:white;
+    border:1px solid var(--line);
+    border-radius:9px;
+    padding:9px 10px;
+    overflow-wrap:anywhere;
+  }
+  .symbol-key{
+    margin-top:8px;
+    color:var(--muted);
+    font-size:.88rem;
+  }
+
+  .control{padding:13px 0;border-bottom:1px solid #edf0f3}
+  .control:last-child{border-bottom:none}
+  .control-top{display:flex;justify-content:space-between;gap:12px;align-items:baseline}
+  .control label{font-weight:800}
+  .value{font-weight:800;color:var(--accent2)}
+  .hint{color:var(--muted);font-size:.88rem;margin-top:4px}
+  input[type="range"]{width:100%;margin-top:10px;accent-color:var(--accent)}
+  .mode-row{display:flex;gap:8px;margin-bottom:12px}
+  .mode-btn,.small-btn,.scenario-btn{
+    border:1px solid var(--line);
+    background:white;
+    border-radius:10px;
+    padding:9px 11px;
+    cursor:pointer;
+    font-weight:700;
+  }
+  .mode-btn.active{background:#1f5f8b;color:white;border-color:#1f5f8b}
+  .small-btn:hover,.scenario-btn:hover,.mode-btn:hover{filter:brightness(.97)}
+  .metrics{
+    display:grid;
+    grid-template-columns:repeat(4,minmax(0,1fr));
+    gap:10px;margin-bottom:14px;
+  }
+  .metric{
+    background:var(--soft);
+    border-radius:14px;
+    padding:12px;
+    min-height:98px;
+  }
+  .metric .k{font-size:.78rem;color:var(--muted);font-weight:800;text-transform:uppercase;letter-spacing:.04em}
+  .metric .v{font-size:1.55rem;font-weight:900;margin-top:4px}
+  .metric .s{font-size:.8rem;color:var(--muted)}
+  .metric.current{outline:2px solid #b7cde0;background:#f7fbff}
+
+  .formula{
+    background:#f8fafc;
+    border:1px dashed #b9c2cc;
+    padding:12px 14px;
+    border-radius:12px;
+    margin:10px 0 0;
+  }
+  .formula code{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:.96rem}
+  .formula small{display:block;color:var(--muted);margin-top:6px}
+
+  #chart{
+    width:100%;
+    height:auto;
+    min-height:330px;
+    background:white;
+    border:1px solid var(--line);
+    border-radius:14px;
+  }
+  .legend{display:flex;gap:16px;flex-wrap:wrap;color:var(--muted);font-size:.88rem;margin-top:8px}
+  .dot{display:inline-block;width:10px;height:10px;border-radius:50%;margin-right:6px}
+  .shop{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:12px;
+    margin-top:14px;
+  }
+  .zone{
+    border:1px solid var(--line);
+    border-radius:14px;
+    padding:14px;
+    background:#fbfcfd;
+  }
+  .icons{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px;min-height:34px}
+  .icon{
+    display:inline-flex;align-items:center;justify-content:center;
+    width:30px;height:30px;border-radius:8px;
+    background:white;border:1px solid var(--line);font-size:18px
+  }
+  .bottleneck{
+    margin-top:12px;
+    border-radius:12px;
+    padding:12px 14px;
+    background:#fff8e8;
+    border:1px solid #ead39f;
+  }
+  .bottleneck strong{color:var(--warn)}
+  .insight{
+    margin-top:12px;
+    border-left:5px solid var(--accent2);
+    background:#eef6fb;
+    padding:12px 14px;
+    border-radius:8px;
+  }
+  .status-good{color:var(--good)}
+  table{width:100%;border-collapse:collapse}
+  th,td{padding:9px 10px;border-bottom:1px solid var(--line);text-align:right}
+  th:first-child,td:first-child{text-align:left}
+  th{background:#f6f8fa;position:sticky;top:0}
+  tr.current-row{background:#fff6f7;font-weight:800}
+  .table-wrap{max-height:520px;overflow:auto;border:1px solid var(--line);border-radius:12px}
+  .scenario-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}
+  .scenario{
+    border:1px solid var(--line);
+    border-radius:14px;
+    padding:15px;
+    background:#fff;
+  }
+  .scenario h3{margin-bottom:6px}
+  .scenario p{color:var(--muted)}
+  .result{
+    margin-top:10px;
+    padding:10px 12px;
+    background:#f7f9fb;
+    border-radius:10px;
+    display:none;
+  }
+  .result.show{display:block}
+  .challenge{
+    border-left:5px solid var(--accent);
+    background:#fff6f7;
+    padding:14px;
+    border-radius:10px;
+    margin-top:14px;
+  }
+  .two{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+  .term{
+    border:1px solid var(--line);
+    border-radius:12px;
+    padding:12px;
+  }
+  .term b{display:block;margin-bottom:4px}
+  .footer-note{color:var(--muted);font-size:.85rem;margin-top:16px}
+  .sr-only{
+    position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;
+    clip:rect(0,0,0,0);white-space:nowrap;border:0
+  }
+
+
+  .skip-link{
+    position:absolute;
+    left:12px;
+    top:-60px;
+    z-index:9999;
+    background:#ffffff;
+    color:#18202a;
+    border:2px solid #1f5f8b;
+    border-radius:8px;
+    padding:10px 14px;
+    font-weight:800;
+  }
+  .skip-link:focus{top:12px}
+
+  :focus-visible{
+    outline:3px solid #1f5f8b;
+    outline-offset:3px;
+  }
+  .game-layout{
+    display:grid;
+    grid-template-columns:1.1fr .9fr;
+    gap:18px;
+  }
+  .game-panel{
+    border:1px solid var(--line);
+    border-radius:14px;
+    padding:16px;
+    background:#fff;
+  }
+  .game-stats{
+    display:grid;
+    grid-template-columns:repeat(4,minmax(0,1fr));
+    gap:10px;
+    margin-bottom:14px;
+  }
+  .game-stat{
+    background:var(--soft);
+    border-radius:12px;
+    padding:12px;
+  }
+  .game-stat .label{
+    font-size:.78rem;
+    color:var(--muted);
+    font-weight:800;
+    text-transform:uppercase;
+    letter-spacing:.04em;
+  }
+  .game-stat .number{
+    font-size:1.35rem;
+    font-weight:900;
+    margin-top:3px;
+  }
+  .upgrade-list{
+    display:grid;
+    gap:10px;
+  }
+  .upgrade{
+    border:1px solid var(--line);
+    border-radius:12px;
+    padding:12px;
+    display:grid;
+    grid-template-columns:1fr auto;
+    gap:10px;
+    align-items:center;
+  }
+  .upgrade h3{margin:0 0 3px;font-size:1rem}
+  .upgrade p{margin:0;color:var(--muted);font-size:.88rem}
+  .upgrade button{
+    border:1px solid var(--line);
+    background:white;
+    border-radius:10px;
+    padding:9px 11px;
+    cursor:pointer;
+    font-weight:800;
+    min-width:92px;
+  }
+  .upgrade button:disabled{
+    cursor:not-allowed;
+    opacity:.55;
+  }
+  .game-message{
+    margin-top:14px;
+    border-radius:12px;
+    padding:14px;
+    background:#eef6fb;
+    border:1px solid #bfd8e8;
+  }
+  .game-message.win{
+    background:#eef8f1;
+    border-color:#bed9c5;
+  }
+  .game-message.lose{
+    background:#fff4f2;
+    border-color:#e5c2bd;
+  }
+  .game-actions{
+    display:flex;
+    gap:10px;
+    flex-wrap:wrap;
+    margin-top:14px;
+  }
+  .primary-btn{
+    border:none;
+    background:var(--accent);
+    color:white;
+    border-radius:10px;
+    padding:10px 14px;
+    font-weight:800;
+    cursor:pointer;
+  }
+  .secondary-btn{
+    border:1px solid var(--line);
+    background:white;
+    color:var(--ink);
+    border-radius:10px;
+    padding:10px 14px;
+    font-weight:800;
+    cursor:pointer;
+  }
+  .orders{
+    margin-top:12px;
+    padding:12px;
+    background:#fbfcfd;
+    border:1px solid var(--line);
+    border-radius:12px;
+  }
+  .orders ul{margin:8px 0 0;padding-left:20px}
+  .accessible-note{
+    font-size:.88rem;
+    color:var(--muted);
+    margin-top:10px;
+  }
+
+
+  .cost-grid{
+    display:grid;
+    grid-template-columns:330px 1fr;
+    gap:18px;
+  }
+  .check-row{
+    display:flex;
+    gap:14px;
+    flex-wrap:wrap;
+    margin:10px 0 4px;
+  }
+  .check-row label{
+    display:inline-flex;
+    align-items:center;
+    gap:6px;
+    font-weight:700;
+  }
+  .cost-summary{
+    display:grid;
+    grid-template-columns:repeat(3,minmax(0,1fr));
+    gap:10px;
+    margin-bottom:14px;
+  }
+  .cost-box{
+    background:var(--soft);
+    border-radius:12px;
+    padding:12px;
+  }
+  .cost-box .k{
+    font-size:.78rem;
+    color:var(--muted);
+    font-weight:800;
+    text-transform:uppercase;
+    letter-spacing:.04em;
+  }
+  .cost-box .v{
+    font-size:1.35rem;
+    font-weight:900;
+    margin-top:3px;
+  }
+  #costChart{
+    width:100%;
+    height:auto;
+    min-height:360px;
+    background:white;
+    border:1px solid var(--line);
+    border-radius:14px;
+  }
+  .cost-note{
+    margin-top:12px;
+    padding:12px 14px;
+    border-radius:10px;
+    background:#f8fafc;
+    border:1px solid var(--line);
+  }
+
+  @media (max-width:900px){
+    .grid{grid-template-columns:1fr}
+    .game-layout,.cost-grid{grid-template-columns:1fr}
+    .metrics,.game-stats{grid-template-columns:repeat(2,1fr)}
+  }
+  @media (max-width:650px){
+    .wrap{padding:12px}
+    .scenario-grid,.two,.shop{grid-template-columns:1fr}
+    .metrics{grid-template-columns:1fr 1fr}
+    .cost-summary{grid-template-columns:1fr}
+    header{padding:20px}
+  }
+  @media (prefers-reduced-motion:reduce){*{scroll-behavior:auto!important}}
+</style>
+</head>
+<body>
+<a class="skip-link" href="#mainContent">Skip to main content</a>
+<div class="wrap" id="mainContent" tabindex="-1">
+  <header>
+    <h1>Pizza Shop Production Function Lab</h1>
+    <p>Explore how workers, ovens, ingredients, technology, and organization affect the number of pizzas a shop can produce in one four-hour shift.</p>
+    <span class="badge">Interactive microeconomics simulator • illustrative teaching model</span>
+  </header>
+
+  <nav class="tabs" aria-label="App sections">
+    <button class="tab" role="tab" aria-selected="true" aria-controls="live" id="tab-live">Live Shop</button>
+    <button class="tab" role="tab" aria-selected="false" aria-controls="table" id="tab-table">TP / MP / AP Table</button>
+    <button class="tab" role="tab" aria-selected="false" aria-controls="scenarios" id="tab-scenarios">What Happens If…?</button>
+    <button class="tab" role="tab" aria-selected="false" aria-controls="rush" id="tab-rush">Pizza Rush Game</button>
+    <button class="tab" role="tab" aria-selected="false" aria-controls="costs" id="tab-costs">Cost Curves</button>
+    <button class="tab" role="tab" aria-selected="false" aria-controls="concepts" id="tab-concepts">Production Function 101</button>
+  </nav>
+
+  <section class="tabpanel" id="live" role="tabpanel" aria-labelledby="tab-live" tabindex="0">
+    <div class="grid">
+      <aside class="card">
+        <h2>Change the Inputs</h2>
+        <div class="mode-row" aria-label="Choose simulation mode">
+          <button class="mode-btn active" id="shortMode">Short run</button>
+          <button class="mode-btn" id="longMode">Long run</button>
+        </div>
+        <p class="hint" id="modeHelp"><b>Short run:</b> ovens are fixed. Add workers and watch marginal product eventually fall.</p>
+
+        <div class="formula-map" aria-label="Production function variable map">
+          <h3>Connect the sliders to the production function</h3>
+          <div class="formula-main">Q = f(L, K, N, T, E)</div>
+          <div class="formula-values" id="formulaValues" aria-live="polite">
+            Q = f(L = 4, K = 2, N = 320, T = 1.00, E = 1.00)
+          </div>
+          <div class="symbol-key">
+            <b>Q</b> = output (pizzas), <b>L</b> = labor, <b>K</b> = capital,
+            <b>N</b> = natural resources/materials, <b>T</b> = technology,
+            <b>E</b> = entrepreneurship/organization.
+            Textbooks may use slightly different symbols, but the economic ideas are the same.
+          </div>
+        </div>
+
+        <div class="control">
+          <div class="control-top"><label for="workers"><span class="var-badge" aria-hidden="true">L</span> Labor — workers</label><span class="value" id="workersVal">4</span></div>
+          <input id="workers" type="range" min="0" max="12" step="1" value="4">
+          <div class="hint"><b>L = Labor.</b> People taking orders, prepping, baking, and boxing pizzas.</div>
+        </div>
+
+        <div class="control">
+          <div class="control-top"><label for="ovens"><span class="var-badge" aria-hidden="true">K</span> Capital — ovens</label><span class="value" id="ovensVal">2</span></div>
+          <input id="ovens" type="range" min="1" max="4" step="1" value="2" disabled>
+          <div class="hint"><b>K = Capital.</b> Physical capital such as ovens and equipment. More capital can relieve crowding and raise capacity.</div>
+        </div>
+
+        <div class="control">
+          <div class="control-top"><label for="materials"><span class="var-badge" aria-hidden="true">N</span> Materials / natural resources — ingredient capacity</label><span class="value" id="materialsVal">320 pizzas</span></div>
+          <input id="materials" type="range" min="80" max="560" step="20" value="320">
+          <div class="hint"><b>N = Natural resources/material inputs.</b> Enough dough, sauce, cheese, and toppings for this many pizzas.</div>
+        </div>
+
+        <div class="control">
+          <div class="control-top"><label for="technology"><span class="var-badge" aria-hidden="true">T</span> Technology / process</label><span class="value" id="technologyVal">100%</span></div>
+          <input id="technology" type="range" min="70" max="140" step="5" value="100">
+          <div class="hint"><b>T = Technology.</b> Ordering systems, oven quality, prep tools, layout, production methods, and know-how.</div>
+        </div>
+
+        <div class="control">
+          <div class="control-top"><label for="organization"><span class="var-badge" aria-hidden="true">E</span> Entrepreneurship / organization</label><span class="value" id="organizationVal">100%</span></div>
+          <input id="organization" type="range" min="60" max="140" step="5" value="100">
+          <div class="hint"><b>E = Entrepreneurship/organization.</b> How well resources, workflow, decisions, innovation, and risk-taking are coordinated.</div>
+        </div>
+
+        <button class="small-btn" id="resetBtn" style="width:100%;margin-top:14px">Reset shop</button>
+      </aside>
+
+      <main>
+        <div class="card">
+          <div class="metrics">
+            <div class="metric current">
+              <div class="k">Total Product (Q / TP)</div>
+              <div class="v" id="tp">0</div>
+              <div class="s">pizzas / shift</div>
+            </div>
+            <div class="metric">
+              <div class="k">Marginal Product (MP<sub>L</sub>)</div>
+              <div class="v" id="mp">0</div>
+              <div class="s">extra pizzas from latest worker</div>
+            </div>
+            <div class="metric">
+              <div class="k">Average Product (AP<sub>L</sub>)</div>
+              <div class="v" id="ap">0</div>
+              <div class="s">pizzas per worker</div>
+            </div>
+            <div class="metric">
+              <div class="k">Workers / Oven</div>
+              <div class="v" id="ratio">0</div>
+              <div class="s">crowding indicator</div>
+            </div>
+          </div>
+
+          <h2>Production Function</h2>
+          <svg id="chart" viewBox="0 0 760 380" role="img" aria-labelledby="chartTitle chartDesc">
+            <title id="chartTitle">Pizza shop total product curve</title>
+            <desc id="chartDesc">A graph showing workers on the horizontal axis and pizzas produced per shift on the vertical axis.</desc>
+          </svg>
+          <div class="legend">
+            <span><span class="dot" style="background:#1f5f8b"></span>Total product curve</span>
+            <span><span class="dot" style="background:#9e1b32"></span>Current shop</span>
+          </div>
+
+          <div class="bottleneck" id="bottleneck"></div>
+          <div class="insight" id="insight"></div>
+
+          <div class="formula">
+            <code>Q = f(L, K, N, T, E)</code>
+            <small>The letters are shorthand for the sliders above. The function says that pizza output depends on the combination of labor, capital, materials/natural resources, technology, and entrepreneurship/organization. The app uses an illustrative textbook-style production schedule rather than data estimated from a real pizza shop.</small>
+          </div>
+
+          <div class="shop">
+            <div class="zone">
+              <b>👩‍🍳 Workers</b>
+              <div class="icons" id="workerIcons" aria-hidden="true"></div>
+            </div>
+            <div class="zone">
+              <b>🔥 Ovens</b>
+              <div class="icons" id="ovenIcons" aria-hidden="true"></div>
+            </div>
+          </div>
+          <p class="footer-note" id="accessibleSummary" aria-live="polite"></p>
+        </div>
+      </main>
+    </div>
+  </section>
+
+  <section class="tabpanel" id="table" role="tabpanel" aria-labelledby="tab-table" tabindex="0" hidden>
+    <div class="card">
+      <h2>Total Product, Marginal Product, and Average Product</h2>
+      <p>Keep the other inputs fixed and add workers one at a time. This is the classic <b>short-run</b> production-function view. The default data follow the standard textbook relationship: MP rises at first, then declines; TP keeps rising while MP is positive, reaches its maximum when MP is about zero, and falls when MP becomes negative.</p>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Workers</th><th>Total Product (TP)</th><th>Marginal Product (MP)</th><th>Average Product (AP)</th><th>What is happening?</th></tr></thead>
+          <tbody id="prodTable"></tbody>
+        </table>
+      </div>
+      <div class="challenge" id="diminishCallout"></div>
+    </div>
+  </section>
+
+  <section class="tabpanel" id="scenarios" role="tabpanel" aria-labelledby="tab-scenarios" tabindex="0" hidden>
+    <div class="card">
+      <h2>What Happens If…?</h2>
+      <p>Use these as group prompts. Have students predict the direction of the change before revealing the answer.</p>
+      <div class="scenario-grid">
+        <article class="scenario">
+          <h3>1. Add one more worker</h3>
+          <p>The shop already has many workers but only two ovens. What will happen to total output? What about marginal product?</p>
+          <button class="scenario-btn" data-scenario="worker">Reveal</button>
+          <div class="result" id="result-worker"></div>
+        </article>
+        <article class="scenario">
+          <h3>2. Add an oven</h3>
+          <p>The kitchen is crowded and the ovens are constantly occupied. What happens if the owner adds another oven?</p>
+          <button class="scenario-btn" data-scenario="oven">Reveal</button>
+          <div class="result" id="result-oven"></div>
+        </article>
+        <article class="scenario">
+          <h3>3. Better ordering technology</h3>
+          <p>A new POS system cuts ordering errors and sends tickets directly to the kitchen.</p>
+          <button class="scenario-btn" data-scenario="tech">Reveal</button>
+          <div class="result" id="result-tech"></div>
+        </article>
+        <article class="scenario">
+          <h3>4. Poor organization</h3>
+          <p>Workers are capable, but nobody coordinates stations, breaks, prep, or order priorities.</p>
+          <button class="scenario-btn" data-scenario="org">Reveal</button>
+          <div class="result" id="result-org"></div>
+        </article>
+        <article class="scenario">
+          <h3>5. Run out of cheese</h3>
+          <p>The shop has plenty of labor and capital, but ingredients are limited.</p>
+          <button class="scenario-btn" data-scenario="materials">Reveal</button>
+          <div class="result" id="result-materials"></div>
+        </article>
+        <article class="scenario">
+          <h3>6. Workers + capital together</h3>
+          <p>The owner expects a huge Friday rush. Is adding workers alone enough?</p>
+          <button class="scenario-btn" data-scenario="together">Reveal</button>
+          <div class="result" id="result-together"></div>
+        </article>
+      </div>
+    </div>
+  </section>
+
+
+  <section class="tabpanel" id="rush" role="tabpanel" aria-labelledby="tab-rush" tabindex="0" hidden>
+    <div class="card">
+      <h2>Pizza Rush Game</h2>
+      <p>Your pizza shop has a rush coming. Reach the required output <b>without going over budget</b>. Choose upgrades carefully—more workers are not always the best answer.</p>
+
+      <div class="game-layout">
+        <div class="game-panel">
+          <div class="game-stats" aria-label="Current pizza rush game status">
+            <div class="game-stat">
+              <div class="label">Target Output</div>
+              <div class="number" id="gameTarget">300</div>
+              <div>pizzas / shift</div>
+            </div>
+            <div class="game-stat">
+              <div class="label">Current Output</div>
+              <div class="number" id="gameOutput">0</div>
+              <div>pizzas / shift</div>
+            </div>
+            <div class="game-stat">
+              <div class="label">Budget Left</div>
+              <div class="number" id="gameBudget">$1,200</div>
+              <div>available</div>
+            </div>
+            <div class="game-stat">
+              <div class="label">Total Spent</div>
+              <div class="number" id="gameSpent">$0</div>
+              <div>this round</div>
+            </div>
+          </div>
+
+          <div class="orders">
+            <b>Rush setup</b>
+            <p id="gameRushDescription" style="margin:6px 0 0;color:var(--muted)"></p>
+            <ul>
+              <li>Starting staff: <span id="gameWorkersText">4 workers</span></li>
+              <li>Starting capital: <span id="gameOvensText">2 ovens</span></li>
+              <li>Ingredient capacity: <span id="gameMaterialsText">320 pizzas</span></li>
+              <li>Technology/process: <span id="gameTechText">100%</span></li>
+              <li>Organization: <span id="gameOrgText">100%</span></li>
+            </ul>
+          </div>
+
+          <div class="game-message" id="gameMessage" role="status" aria-live="polite">
+            Make your first move. Your goal is to reach the target while staying within budget.
+          </div>
+
+          <div class="game-actions">
+            <button class="primary-btn" id="checkRushBtn">Check My Plan</button>
+            <button class="secondary-btn" id="newRushBtn">New Rush</button>
+            <button class="secondary-btn" id="resetRushBtn">Reset This Rush</button>
+          </div>
+          <p class="accessible-note">All game information is also written in text. No answer depends on color, icons, or the graph alone.</p>
+        </div>
+
+        <div class="game-panel">
+          <h3>Available Moves</h3>
+          <div class="upgrade-list">
+            <div class="upgrade">
+              <div>
+                <h3>Hire 1 worker</h3>
+                <p>Adds labor. Helpful until fixed capital becomes crowded.</p>
+              </div>
+              <button id="buyWorkerBtn" aria-label="Hire one worker for 150 dollars">$150</button>
+            </div>
+
+            <div class="upgrade">
+              <div>
+                <h3>Add 1 oven</h3>
+                <p>Raises capital capacity and can increase the productivity of existing labor.</p>
+              </div>
+              <button id="buyOvenBtn" aria-label="Add one oven for 500 dollars">$500</button>
+            </div>
+
+            <div class="upgrade">
+              <div>
+                <h3>Increase ingredient capacity</h3>
+                <p>Adds enough dough, sauce, cheese, and toppings for 80 more pizzas.</p>
+              </div>
+              <button id="buyMaterialsBtn" aria-label="Increase ingredient capacity by 80 pizzas for 120 dollars">$120</button>
+            </div>
+
+            <div class="upgrade">
+              <div>
+                <h3>Improve technology/process</h3>
+                <p>Raises productivity by 10 percentage points through better tools or workflow.</p>
+              </div>
+              <button id="buyTechBtn" aria-label="Improve technology and process by 10 percentage points for 300 dollars">$300</button>
+            </div>
+
+            <div class="upgrade">
+              <div>
+                <h3>Improve organization</h3>
+                <p>Raises coordination and management effectiveness by 10 percentage points.</p>
+              </div>
+              <button id="buyOrgBtn" aria-label="Improve organization by 10 percentage points for 250 dollars">$250</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="challenge">
+        <b>Reflection challenge:</b> Explain <em>why</em> your plan works. Did you fix the actual bottleneck, or just spend money? What would happen if the target were higher?
+      </div>
+    </div>
+  </section>
+
+
+  <section class="tabpanel" id="costs" role="tabpanel" aria-labelledby="tab-costs" tabindex="0" hidden>
+    <div class="card">
+      <h2>Pizza Shop Cost Curves</h2>
+      <p>Translate the production function into the short-run cost curves students see in microeconomics. Adjust the assumptions and watch <b>ATC</b>, <b>AVC</b>, and <b>MC</b> change.</p>
+
+      <div class="cost-grid">
+        <aside class="game-panel">
+          <h3>Tailor the Cost Assumptions</h3>
+
+          <div class="control">
+            <div class="control-top">
+              <label for="fixedCost">Total fixed cost per shift</label>
+              <span class="value" id="fixedCostVal">$240</span>
+            </div>
+            <input id="fixedCost" type="range" min="60" max="900" step="20" value="240">
+            <div class="hint">Rent, insurance, equipment lease, and other costs that do not change with output in the short run.</div>
+          </div>
+
+          <div class="control">
+            <div class="control-top">
+              <label for="wageCost">Labor cost per worker per shift</label>
+              <span class="value" id="wageCostVal">$100</span>
+            </div>
+            <input id="wageCost" type="range" min="40" max="240" step="10" value="100">
+            <div class="hint">The variable labor cost of adding another worker.</div>
+          </div>
+
+          <div class="control">
+            <div class="control-top">
+              <label for="ingredientCost">Ingredient cost per pizza</label>
+              <span class="value" id="ingredientCostVal">$3.00</span>
+            </div>
+            <input id="ingredientCost" type="range" min="0" max="8" step=".25" value="3">
+            <div class="hint">Dough, sauce, cheese, toppings, box, and other variable materials used per pizza.</div>
+          </div>
+
+          <div class="control">
+            <div class="control-top">
+              <label for="costOvens">Fixed ovens in the short run</label>
+              <span class="value" id="costOvensVal">2</span>
+            </div>
+            <input id="costOvens" type="range" min="1" max="4" step="1" value="2">
+            <div class="hint">Changing this shifts the short-run production relationship used to generate the cost curves.</div>
+          </div>
+
+          <div class="check-row" aria-label="Choose curves to display">
+            <label><input type="checkbox" id="showATC" checked> ATC</label>
+            <label><input type="checkbox" id="showAVC" checked> AVC</label>
+            <label><input type="checkbox" id="showMC" checked> MC</label>
+          </div>
+
+          <div class="formula" aria-label="Cost curve formulas">
+            <code>AVC = TVC ÷ Q</code><br>
+            <code>ATC = TC ÷ Q = AFC + AVC</code><br>
+            <code>MC = ΔTC ÷ ΔQ</code>
+            <small>Here, TVC includes labor plus ingredients. Fixed cost affects ATC but not AVC or MC.</small>
+          </div>
+
+          <button class="small-btn" id="resetCostsBtn" style="width:100%;margin-top:12px">Reset cost assumptions</button>
+        </aside>
+
+        <div>
+          <div class="cost-summary">
+            <div class="cost-box">
+              <div class="k">Minimum AVC</div>
+              <div class="v" id="minAVC">—</div>
+              <div id="minAVCq">—</div>
+            </div>
+            <div class="cost-box">
+              <div class="k">Minimum ATC</div>
+              <div class="v" id="minATC">—</div>
+              <div id="minATCq">—</div>
+            </div>
+            <div class="cost-box">
+              <div class="k">Lowest MC</div>
+              <div class="v" id="minMC">—</div>
+              <div id="minMCq">—</div>
+            </div>
+          </div>
+
+          <svg id="costChart" viewBox="0 0 760 410" role="img" aria-labelledby="costChartTitle costChartDesc">
+            <title id="costChartTitle">Pizza shop short-run cost curves</title>
+            <desc id="costChartDesc">A graph of average total cost, average variable cost, and marginal cost as pizza output changes. ATC uses a solid line with circle markers, AVC uses a dashed line with square markers, and MC uses a dotted line with triangle markers.</desc>
+          </svg>
+
+          <div class="legend" id="costLegend" aria-label="Cost curve legend">
+            <span><b>ATC</b> — solid line with circle markers</span>
+            <span><b>AVC</b> — dashed line with square markers</span>
+            <span><b>MC</b> — dotted line with triangle markers</span>
+          </div>
+          <p class="accessible-note">
+            The curves are intentionally differentiated by <b>line style, marker shape, and text labels</b>, not color alone.
+          </p>
+
+
+          <div class="cost-note" id="costInsight" aria-live="polite"></div>
+          <p class="footer-note">
+            The graph uses the same textbook-shaped pizza production schedule as the production tab. For the cost graph, inefficient output points after total product begins to fall are excluded because a firm would not normally choose a combination that uses more labor to produce less output.
+          </p>
+        </div>
+      </div>
+
+      <div class="challenge">
+        <b>Key relationships:</b> when marginal product rises, marginal cost falls. When diminishing marginal product begins, marginal cost begins to rise. MC crosses AVC and ATC near their respective minimum points.
+      </div>
+    </div>
+  </section>
+
+  <section class="tabpanel" id="concepts" role="tabpanel" aria-labelledby="tab-concepts" tabindex="0" hidden>
+    <div class="card">
+      <h2>Production Function 101</h2>
+      <p>A production function is a model of the relationship between <b>inputs</b> and the maximum <b>output</b> a firm can produce with a given level of technology and organization.</p>
+      <div class="two">
+        <div class="term"><b>Labor (L)</b>Workers. In the pizza shop: order takers, cooks, prep staff, and boxers.</div>
+        <div class="term"><b>Capital (K)</b>Tools and equipment used to produce. In the pizza shop: ovens, mixers, prep tables, refrigerators.</div>
+        <div class="term"><b>Materials (M)</b>Raw inputs that are transformed into output: dough, cheese, sauce, toppings, boxes.</div>
+        <div class="term"><b>Technology / productivity (A)</b>Methods and tools that let the same labor and capital produce more output.</div>
+        <div class="term"><b>Entrepreneurship / organization (E)</b>Organizing resources, designing the workflow, spotting opportunities, making decisions, and bearing risk.</div>
+        <div class="term"><b>Output (Q)</b>The finished good or service. Here: pizzas produced during one four-hour shift.</div>
+      </div>
+
+      <div class="challenge">
+        <b>Important teaching point:</b> entrepreneurship is real, but it is difficult to measure as a physical input. In this simulator it is represented as an <em>organization/productivity multiplier</em>. A real economist might estimate its effect indirectly through productivity, management quality, firm practices, or residual differences in output.
+      </div>
+
+      <h3 style="margin-top:22px">Short run vs. long run</h3>
+      <p><b>Short run:</b> at least one input is fixed. In this app, ovens are fixed while workers change. <b>Long run:</b> the firm has time to change all inputs, including capital.</p>
+
+      <h3>Diminishing marginal product</h3>
+      <p>At first, adding workers can create specialization, so total product rises at an increasing rate and marginal product rises. After a point, fixed capital becomes crowded. Total product may still rise, but at a decreasing rate because marginal product is falling. If the shop becomes severely overcrowded, marginal product can reach zero and then become negative, causing total product to fall.</p>
+
+      <h3>Production and cost curves are connected</h3>
+      <p>The production side and cost side tell the same story from different angles. When workers become more productive, the extra cost of producing another pizza falls. When diminishing marginal product sets in, marginal cost rises.</p>
+      <p><b>AVC</b> is variable cost per unit of output. <b>ATC</b> is total cost per unit and equals AVC plus average fixed cost. <b>MC</b> is the change in total cost divided by the change in output. MC pulls the averages: when MC is below an average, it tends to pull that average down; when MC is above it, it tends to pull the average up.</p>
+
+      <h3>Why this matters</h3>
+      <p>The concept explains why “hire more workers” is not automatically the best production decision. The answer may instead be “add another oven,” “change the layout,” “improve the process,” or “fix the ingredient bottleneck.”</p>
+    </div>
+  </section>
+</div>
+
+<script>
+const els = {
+  workers:document.getElementById('workers'),
+  ovens:document.getElementById('ovens'),
+  materials:document.getElementById('materials'),
+  technology:document.getElementById('technology'),
+  organization:document.getElementById('organization'),
+  workersVal:document.getElementById('workersVal'),
+  ovensVal:document.getElementById('ovensVal'),
+  materialsVal:document.getElementById('materialsVal'),
+  technologyVal:document.getElementById('technologyVal'),
+  organizationVal:document.getElementById('organizationVal'),
+  tp:document.getElementById('tp'), mp:document.getElementById('mp'),
+  ap:document.getElementById('ap'), ratio:document.getElementById('ratio'),
+  chart:document.getElementById('chart'),
+  bottleneck:document.getElementById('bottleneck'),
+  insight:document.getElementById('insight'),
+  workerIcons:document.getElementById('workerIcons'),
+  ovenIcons:document.getElementById('ovenIcons'),
+  accessibleSummary:document.getElementById('accessibleSummary'),
+  formulaValues:document.getElementById('formulaValues'),
+  prodTable:document.getElementById('prodTable'),
+  diminishCallout:document.getElementById('diminishCallout'),
+  shortMode:document.getElementById('shortMode'),
+  longMode:document.getElementById('longMode'),
+  modeHelp:document.getElementById('modeHelp')
+};
+
+let mode='short';
+
+// Textbook-shaped short-run production schedule.
+// Baseline assumes 2 ovens and technology/organization indexes of 100%.
+// The pattern is intentional:
+// - TP first rises at an increasing rate
+// - then rises at a decreasing rate
+// - TP reaches a maximum
+// - with severe overcrowding, TP can fall
+// Therefore MP rises, peaks, declines, reaches zero near TP's maximum,
+// and can become negative.
+const baselineTP = [
+  0,   // 0 workers
+  24,  // 1
+  56,  // 2
+  96,  // 3
+  142, // 4
+  184, // 5
+  220, // 6
+  248, // 7
+  268, // 8
+  280, // 9
+  286, // 10
+  286, // 11  (MP = 0; TP is at its maximum)
+  278  // 12  (negative MP; TP begins to fall)
+];
+
+function interpolateBaselineTP(effectiveLabor){
+  if(effectiveLabor <= 0) return 0;
+  if(effectiveLabor >= baselineTP.length-1){
+    // Extend the negative-MP region gently beyond the table if capital is very scarce.
+    const extra = effectiveLabor-(baselineTP.length-1);
+    return Math.max(0, baselineTP[baselineTP.length-1] - 10*extra);
+  }
+  const lo = Math.floor(effectiveLabor);
+  const hi = Math.ceil(effectiveLabor);
+  if(lo===hi) return baselineTP[lo];
+  const t = effectiveLabor-lo;
+  return baselineTP[lo] + (baselineTP[hi]-baselineTP[lo])*t;
+}
+
+function coreOutput(L,K,T,O){
+  // Scaling capital shifts the TP curve:
+  // more ovens let a given workforce operate at a less crowded point on the curve.
+  // Scaling labor and capital proportionally approximately scales output proportionally.
+  const capitalScale = K/2;
+  const effectiveLabor = L/capitalScale;
+  const base = interpolateBaselineTP(effectiveLabor);
+  return Math.max(0, capitalScale * base * T * O);
+}
+
+function production(L,K,M,T,O){
+  const core = coreOutput(L,K,T,O);
+  return Math.max(0, Math.round(Math.min(core,M)));
+}
+
+function marginal(L,K,M,T,O){
+  if(L<=0) return production(0,K,M,T,O);
+  return production(L,K,M,T,O)-production(L-1,K,M,T,O);
+}
+
+function average(L,K,M,T,O){
+  return L===0 ? 0 : production(L,K,M,T,O)/L;
+}
+
+function inputs(){
+  return {
+    L:+els.workers.value,
+    K:+els.ovens.value,
+    M:+els.materials.value,
+    T:+els.technology.value/100,
+    O:+els.organization.value/100
+  };
+}
+function setText(){
+  const {L,K,M,T,O}=inputs();
+  els.workersVal.textContent=L;
+  els.ovensVal.textContent=K;
+  els.materialsVal.textContent=M+' pizzas';
+  els.technologyVal.textContent=Math.round(T*100)+'%';
+  els.organizationVal.textContent=Math.round(O*100)+'%';
+  if(els.formulaValues){
+    els.formulaValues.textContent =
+      `Q = f(L = ${L}, K = ${K}, N = ${M}, T = ${T.toFixed(2)}, E = ${O.toFixed(2)})`;
+  }
+}
+function bottleneckText(L,K,M,T,O,Q){
+  const potential = Math.round(coreOutput(L,K,T,O));
+  const ratio=L/K;
+  if(L===0) return '<strong>Bottleneck:</strong> labor. No workers means no pizzas are produced.';
+  if(M < potential) return '<strong>Bottleneck:</strong> ingredients. The shop could produce about '+potential+' pizzas, but only has materials for '+M+'.';
+  if(ratio >= 5.0) return '<strong>Bottleneck:</strong> capital/crowding. There are many workers per oven, so marginal product is low and may eventually become negative.';
+  if(T < .85) return '<strong>Bottleneck:</strong> technology/process. Weak tools or procedures are holding down output.';
+  if(O < .85) return '<strong>Bottleneck:</strong> organization. Coordination problems are reducing the productivity of the other inputs.';
+  if(ratio < 1.3 && K>=2) return '<strong>Bottleneck:</strong> labor. The shop has more oven capacity than the current crew can fully use.';
+  return '<strong>Status:</strong> the shop is fairly balanced. Change one input and watch whether a new bottleneck appears.';
+}
+function insightText(L,K,M,T,O,Q,MP){
+  const prevMP = L>1 ? marginal(L-1,K,M,T,O) : null;
+  if(L===0) return '<b>Notice:</b> capital by itself does not produce pizza in this model. The shop needs labor to activate the production process.';
+  if(M <= Q) return '<b>Key idea:</b> adding workers or ovens will not raise actual output until the ingredient constraint is relaxed.';
+  if(prevMP!==null && MP < prevMP) return '<b>Diminishing marginal product is showing up:</b> the newest worker adds fewer pizzas than the previous worker because some inputs are fixed.';
+  if(prevMP!==null && MP > prevMP) return '<b>Specialization effect:</b> the newest worker adds more output than the previous one. Early workers can divide tasks and use the kitchen more effectively.';
+  return '<b>Key idea:</b> total product and marginal product are different. Output may be rising even when each additional worker contributes less than the one before.';
+}
+
+function drawChart(){
+  const {K,M,T,O,L}=inputs();
+  const data=[];
+  for(let w=0;w<=12;w++) data.push({w,q:production(w,K,M,T,O)});
+  const maxQ=Math.max(100,...data.map(d=>d.q));
+  const W=760,H=380,p={l:58,r:22,t:24,b:52};
+  const iw=W-p.l-p.r, ih=H-p.t-p.b;
+  const sx=w=>p.l+(w/12)*iw;
+  const sy=q=>p.t+ih-(q/(maxQ*1.1))*ih;
+  const ns='http://www.w3.org/2000/svg';
+  els.chart.innerHTML='';
+  const title=document.createElementNS(ns,'title'); title.id='chartTitle'; title.textContent='Pizza shop total product curve'; els.chart.appendChild(title);
+  const desc=document.createElementNS(ns,'desc'); desc.id='chartDesc'; desc.textContent='Workers on the horizontal axis and pizzas per shift on the vertical axis. Current workers: '+L+'. Current output: '+production(L,K,M,T,O)+' pizzas.'; els.chart.appendChild(desc);
+
+  // grid and labels
+  for(let i=0;i<=5;i++){
+    const y=p.t+(i/5)*ih;
+    const line=document.createElementNS(ns,'line');
+    line.setAttribute('x1',p.l);line.setAttribute('x2',W-p.r);line.setAttribute('y1',y);line.setAttribute('y2',y);
+    line.setAttribute('stroke','#e5e9ee'); els.chart.appendChild(line);
+    const val=Math.round(maxQ*1.1*(1-i/5));
+    const tx=document.createElementNS(ns,'text'); tx.setAttribute('x',p.l-10);tx.setAttribute('y',y+4);tx.setAttribute('text-anchor','end');tx.setAttribute('font-size','12');tx.setAttribute('fill','#5d6977');tx.textContent=val;els.chart.appendChild(tx);
+  }
+  for(let w=0;w<=12;w+=2){
+    const x=sx(w);
+    const tx=document.createElementNS(ns,'text');tx.setAttribute('x',x);tx.setAttribute('y',H-24);tx.setAttribute('text-anchor','middle');tx.setAttribute('font-size','12');tx.setAttribute('fill','#5d6977');tx.textContent=w;els.chart.appendChild(tx);
+  }
+  const xlab=document.createElementNS(ns,'text');xlab.setAttribute('x',p.l+iw/2);xlab.setAttribute('y',H-5);xlab.setAttribute('text-anchor','middle');xlab.setAttribute('font-weight','700');xlab.textContent='Workers (Labor)';els.chart.appendChild(xlab);
+  const ylab=document.createElementNS(ns,'text');ylab.setAttribute('transform','translate(16 '+(p.t+ih/2)+') rotate(-90)');ylab.setAttribute('text-anchor','middle');ylab.setAttribute('font-weight','700');ylab.textContent='Pizzas per shift (Total Product)';els.chart.appendChild(ylab);
+
+  const pts=data.map(d=>sx(d.w)+','+sy(d.q)).join(' ');
+  const poly=document.createElementNS(ns,'polyline');
+  poly.setAttribute('points',pts);poly.setAttribute('fill','none');poly.setAttribute('stroke','#1f5f8b');poly.setAttribute('stroke-width','4');poly.setAttribute('stroke-linejoin','round');poly.setAttribute('stroke-linecap','round');els.chart.appendChild(poly);
+
+  const cur=data[L];
+  const c=document.createElementNS(ns,'circle');c.setAttribute('cx',sx(cur.w));c.setAttribute('cy',sy(cur.q));c.setAttribute('r','7');c.setAttribute('fill','#9e1b32');c.setAttribute('stroke','white');c.setAttribute('stroke-width','3');els.chart.appendChild(c);
+  const label=document.createElementNS(ns,'text');label.setAttribute('x',Math.min(W-150,sx(cur.w)+10));label.setAttribute('y',Math.max(20,sy(cur.q)-12));label.setAttribute('font-size','13');label.setAttribute('font-weight','800');label.setAttribute('fill','#9e1b32');label.textContent=L+' workers → '+cur.q+' pizzas';els.chart.appendChild(label);
+}
+function fillIcons(){
+  const {L,K}=inputs();
+  els.workerIcons.innerHTML='';
+  els.ovenIcons.innerHTML='';
+  for(let i=0;i<L;i++){const s=document.createElement('span');s.className='icon';s.textContent='👩‍🍳';els.workerIcons.appendChild(s);}
+  for(let i=0;i<K;i++){const s=document.createElement('span');s.className='icon';s.textContent='🔥';els.ovenIcons.appendChild(s);}
+}
+function buildTable(){
+  const {K,M,T,O,L}=inputs();
+  let html='', firstDiminish=null, prevMP=null;
+  for(let w=0;w<=12;w++){
+    const q=production(w,K,M,T,O);
+    const mp=marginal(w,K,M,T,O);
+    const ap=average(w,K,M,T,O);
+    let note='—';
+    if(w===0) note='No labor';
+    else if(prevMP!==null && mp>prevMP) note='Specialization / rising MP';
+    else if(prevMP!==null && mp<prevMP){note='Diminishing MP'; if(firstDiminish===null) firstDiminish=w;}
+    else if(w>0) note='MP unchanged';
+    html += `<tr class="${w===L?'current-row':''}"><td>${w}</td><td>${q}</td><td>${w===0?'—':mp}</td><td>${w===0?'—':ap.toFixed(1)}</td><td>${note}</td></tr>`;
+    if(w>0) prevMP=mp;
+  }
+  els.prodTable.innerHTML=html;
+  if(firstDiminish){
+    els.diminishCallout.innerHTML='<b>With the current fixed inputs, diminishing marginal product begins around worker '+firstDiminish+'.</b> That does not mean total output immediately falls. It means each additional worker starts adding less output than the worker before.';
+  } else {
+    els.diminishCallout.innerHTML='<b>Try changing the fixed inputs.</b> The point at which diminishing marginal product appears can move when capital, materials, technology, or organization changes.';
+  }
+}
+
+function update(){
+  setText();
+  const {L,K,M,T,O}=inputs();
+  const Q=production(L,K,M,T,O);
+  const MP=marginal(L,K,M,T,O);
+  const AP=average(L,K,M,T,O);
+  els.tp.textContent=Q;
+  els.mp.textContent=L===0?'—':MP;
+  els.ap.textContent=L===0?'—':AP.toFixed(1);
+  els.ratio.textContent=(L/K).toFixed(1);
+  els.bottleneck.innerHTML=bottleneckText(L,K,M,T,O,Q);
+  els.insight.innerHTML=insightText(L,K,M,T,O,Q,MP);
+  els.accessibleSummary.textContent=`Current result: ${L} workers, ${K} oven${K===1?'':'s'}, materials for ${M} pizzas, technology ${Math.round(T*100)} percent, organization ${Math.round(O*100)} percent. Total output is ${Q} pizzas per shift${L>0 ? `, marginal product is ${MP}, and average product is ${AP.toFixed(1)} pizzas per worker.` : '.'}`;
+  fillIcons();
+  drawChart();
+  buildTable();
+}
+['workers','ovens','materials','technology','organization'].forEach(id=>document.getElementById(id).addEventListener('input',update));
+
+els.shortMode.addEventListener('click',()=>{
+  mode='short'; els.ovens.disabled=true;
+  els.shortMode.classList.add('active');els.longMode.classList.remove('active');
+  els.modeHelp.innerHTML='<b>Short run:</b> ovens are fixed. Add workers and watch marginal product eventually fall.';
+});
+els.longMode.addEventListener('click',()=>{
+  mode='long'; els.ovens.disabled=false;
+  els.longMode.classList.add('active');els.shortMode.classList.remove('active');
+  els.modeHelp.innerHTML='<b>Long run:</b> all inputs can change. Try adding workers and ovens together.';
+});
+document.getElementById('resetBtn').addEventListener('click',()=>{
+  els.workers.value=4;els.ovens.value=2;els.materials.value=320;els.technology.value=100;els.organization.value=100;
+  update();
+});
+
+document.querySelectorAll('.tab').forEach(btn=>{
+  btn.addEventListener('click',()=>{
+    document.querySelectorAll('.tab').forEach(b=>b.setAttribute('aria-selected','false'));
+    document.querySelectorAll('.tabpanel').forEach(p=>p.hidden=true);
+    btn.setAttribute('aria-selected','true');
+    document.getElementById(btn.getAttribute('aria-controls')).hidden=false;
+  });
+});
+
+const scenarioAnswers={
+  worker:'<b>Likely result:</b> total product rises, but marginal product may fall if the kitchen is already crowded. More labor is useful only if the fixed capital can support it.',
+  oven:'<b>Likely result:</b> capital increases. Workers have more oven access, crowding falls, and the marginal product of labor can rise.',
+  tech:'<b>Likely result:</b> the production function shifts upward. The same workers and ovens can produce more pizzas because the process is more productive.',
+  org:'<b>Likely result:</b> output falls even though the physical inputs did not change. Poor coordination lowers how effectively labor and capital are combined.',
+  materials:'<b>Likely result:</b> materials become the binding constraint. Extra labor or ovens cannot raise actual output once the shop hits its ingredient limit.',
+  together:'<b>Likely result:</b> increasing labor and capital together can expand capacity more effectively than increasing labor alone. This is a useful bridge from the short run to the long run.'
+};
+document.querySelectorAll('[data-scenario]').forEach(btn=>{
+  btn.addEventListener('click',()=>{
+    const k=btn.dataset.scenario, box=document.getElementById('result-'+k);
+    box.innerHTML=scenarioAnswers[k];box.classList.toggle('show');
+    btn.textContent=box.classList.contains('show')?'Hide':'Reveal';
+  });
+});
+
+
+// Accessible keyboard navigation for tabs
+const tabButtons = Array.from(document.querySelectorAll('.tab'));
+tabButtons.forEach((btn,index)=>{
+  btn.setAttribute('tabindex', btn.getAttribute('aria-selected')==='true' ? '0' : '-1');
+  btn.addEventListener('keydown',(e)=>{
+    let next=index;
+    if(e.key==='ArrowRight') next=(index+1)%tabButtons.length;
+    else if(e.key==='ArrowLeft') next=(index-1+tabButtons.length)%tabButtons.length;
+    else if(e.key==='Home') next=0;
+    else if(e.key==='End') next=tabButtons.length-1;
+    else return;
+    e.preventDefault();
+    tabButtons[next].focus();
+    tabButtons[next].click();
+  });
+});
+
+// Keep tab roving tabindex synchronized when clicked
+document.querySelectorAll('.tab').forEach(btn=>{
+  btn.addEventListener('click',()=>{
+    document.querySelectorAll('.tab').forEach(b=>b.setAttribute('tabindex','-1'));
+    btn.setAttribute('tabindex','0');
+  });
+});
+
+// Pizza Rush Game
+const rushScenarios = [
+  {
+    name:'Staffing Crunch',
+    description:'Demand is up, and the kitchen has unused capacity. Labor is the main constraint.',
+    target:250,budget:1000,L:4,K:2,M:320,T:100,O:100
+  },
+  {
+    name:'Oven Bottleneck',
+    description:'The crew is large, but one oven is limiting what the shop can push through.',
+    target:190,budget:1000,L:7,K:1,M:300,T:100,O:100
+  },
+  {
+    name:'Ingredient Shortage',
+    description:'The shop is productive, but supplies are capped well below potential output.',
+    target:240,budget:700,L:10,K:2,M:180,T:110,O:110
+  },
+  {
+    name:'Slow Process',
+    description:'The staff and equipment are adequate, but outdated tools and workflow are dragging down productivity.',
+    target:200,budget:700,L:9,K:2,M:320,T:70,O:100
+  },
+  {
+    name:'Coordination Problem',
+    description:'The physical inputs are in place, but weak scheduling and organization are reducing output.',
+    target:200,budget:650,L:9,K:2,M:320,T:100,O:70
+  }
+];
+
+let rush = {};
+let rushBase = {};
+
+function clone(obj){ return JSON.parse(JSON.stringify(obj)); }
+
+function chooseRush(){
+  const s = rushScenarios[Math.floor(Math.random()*rushScenarios.length)];
+  rushBase = clone(s);
+  rush = {...clone(s), spent:0};
+  updateRush();
+  setRushMessage(`${rush.name}. Make your first move. Reach the target while staying within budget.`,'');
+}
+
+function rushOutput(){
+  return production(rush.L,rush.K,rush.M,rush.T/100,rush.O/100);
+}
+function setRushMessage(text,state=''){
+  const box=document.getElementById('gameMessage');
+  box.textContent=text;
+  box.className='game-message'+(state ? ' '+state : '');
+}
+function canBuy(cost){ return rush.budget-rush.spent>=cost; }
+
+function updateRush(){
+  const q=rushOutput();
+  document.getElementById('gameRushDescription').textContent=`${rush.name}: ${rush.description}`;
+  document.getElementById('gameTarget').textContent=rush.target;
+  document.getElementById('gameOutput').textContent=q;
+  document.getElementById('gameBudget').textContent='$'+(rush.budget-rush.spent).toLocaleString();
+  document.getElementById('gameSpent').textContent='$'+rush.spent.toLocaleString();
+  document.getElementById('gameWorkersText').textContent=`${rush.L} worker${rush.L===1?'':'s'}`;
+  document.getElementById('gameOvensText').textContent=`${rush.K} oven${rush.K===1?'':'s'}`;
+  document.getElementById('gameMaterialsText').textContent=`${rush.M} pizzas`;
+  document.getElementById('gameTechText').textContent=`${rush.T}%`;
+  document.getElementById('gameOrgText').textContent=`${rush.O}%`;
+
+  const purchaseButtons = [
+    ['buyWorkerBtn',150],
+    ['buyOvenBtn',500],
+    ['buyMaterialsBtn',120],
+    ['buyTechBtn',300],
+    ['buyOrgBtn',250]
+  ];
+  purchaseButtons.forEach(([id,cost])=>document.getElementById(id).disabled=!canBuy(cost));
+}
+
+function buy(cost,actionText,apply){
+  if(!canBuy(cost)){
+    setRushMessage('That move is over the remaining budget. Choose a less expensive option.','lose');
+    return;
+  }
+  apply();
+  rush.spent += cost;
+  updateRush();
+  const q=rushOutput();
+  setRushMessage(`${actionText} Current output is now ${q} pizzas per shift, with $${(rush.budget-rush.spent).toLocaleString()} left.`,'');
+}
+
+document.getElementById('buyWorkerBtn').addEventListener('click',()=>buy(150,'You hired one worker.',()=>rush.L+=1));
+document.getElementById('buyOvenBtn').addEventListener('click',()=>buy(500,'You added one oven.',()=>rush.K+=1));
+document.getElementById('buyMaterialsBtn').addEventListener('click',()=>buy(120,'You increased ingredient capacity by 80 pizzas.',()=>rush.M+=80));
+document.getElementById('buyTechBtn').addEventListener('click',()=>buy(300,'You improved technology and process by 10 percentage points.',()=>rush.T=Math.min(140,rush.T+10)));
+document.getElementById('buyOrgBtn').addEventListener('click',()=>buy(250,'You improved organization by 10 percentage points.',()=>rush.O=Math.min(140,rush.O+10)));
+
+document.getElementById('checkRushBtn').addEventListener('click',()=>{
+  const q=rushOutput();
+  if(q>=rush.target && rush.spent<=rush.budget){
+    const efficiency = Math.round(100*(rush.budget-rush.spent)/rush.budget);
+    setRushMessage(`Success! Your shop can produce ${q} pizzas per shift, meeting the ${rush.target}-pizza target. You spent $${rush.spent.toLocaleString()} and have $${(rush.budget-rush.spent).toLocaleString()} left. Budget remaining: ${efficiency} percent.`,'win');
+  } else if(q<rush.target && rush.spent>=rush.budget){
+    setRushMessage(`The plan does not meet the target. Output is ${q}, but the target is ${rush.target}, and the full budget has been spent. Reset and try a different mix of inputs.`,'lose');
+  } else {
+    setRushMessage(`Not there yet. Output is ${q} pizzas per shift and the target is ${rush.target}. You still have $${(rush.budget-rush.spent).toLocaleString()} available. Think about the current bottleneck.`,'lose');
+  }
+});
+document.getElementById('resetRushBtn').addEventListener('click',()=>{
+  rush={...clone(rushBase),spent:0};
+  updateRush();
+  setRushMessage(`${rush.name} has been reset to its starting conditions.`,'');
+});
+document.getElementById('newRushBtn').addEventListener('click',chooseRush);
+
+chooseRush();
+
+
+// Cost Curves
+const costEls = {
+  fixedCost: document.getElementById('fixedCost'),
+  wageCost: document.getElementById('wageCost'),
+  ingredientCost: document.getElementById('ingredientCost'),
+  costOvens: document.getElementById('costOvens'),
+  fixedCostVal: document.getElementById('fixedCostVal'),
+  wageCostVal: document.getElementById('wageCostVal'),
+  ingredientCostVal: document.getElementById('ingredientCostVal'),
+  costOvensVal: document.getElementById('costOvensVal'),
+  showATC: document.getElementById('showATC'),
+  showAVC: document.getElementById('showAVC'),
+  showMC: document.getElementById('showMC'),
+  chart: document.getElementById('costChart'),
+  minAVC: document.getElementById('minAVC'),
+  minAVCq: document.getElementById('minAVCq'),
+  minATC: document.getElementById('minATC'),
+  minATCq: document.getElementById('minATCq'),
+  minMC: document.getElementById('minMC'),
+  minMCq: document.getElementById('minMCq'),
+  insight: document.getElementById('costInsight')
+};
+
+function buildCostData(){
+  const FC=+costEls.fixedCost.value;
+  const wage=+costEls.wageCost.value;
+  const ingredient=+costEls.ingredientCost.value;
+  const K=+costEls.costOvens.value;
+
+  const rows=[];
+  let prevQ=0, prevTC=FC;
+
+  for(let L=1; L<=12; L++){
+    const Q=production(L,K,99999,1,1);
+
+    // Once output no longer rises, stop. That avoids plotting economically
+    // dominated points with zero/negative marginal product.
+    if(Q<=prevQ) break;
+
+    const TVC=L*wage + ingredient*Q;
+    const TC=FC+TVC;
+    const AVC=TVC/Q;
+    const ATC=TC/Q;
+    const MC=(TC-prevTC)/(Q-prevQ);
+
+    rows.push({L,Q,TVC,TC,AVC,ATC,MC});
+    prevQ=Q;
+    prevTC=TC;
+  }
+  return rows;
+}
+
+function money(v){ return '$'+v.toFixed(2); }
+
+function minRow(rows,key){
+  return rows.reduce((best,r)=>r[key]<best[key]?r:best, rows[0]);
+}
+
+function drawCostChart(){
+  const rows=buildCostData();
+  const show = {
+    ATC:costEls.showATC.checked,
+    AVC:costEls.showAVC.checked,
+    MC:costEls.showMC.checked
+  };
+
+  costEls.fixedCostVal.textContent='$'+(+costEls.fixedCost.value).toFixed(0);
+  costEls.wageCostVal.textContent='$'+(+costEls.wageCost.value).toFixed(0);
+  costEls.ingredientCostVal.textContent='$'+(+costEls.ingredientCost.value).toFixed(2);
+  costEls.costOvensVal.textContent=costEls.costOvens.value;
+
+  const avcMin=minRow(rows,'AVC');
+  const atcMin=minRow(rows,'ATC');
+  const mcMin=minRow(rows,'MC');
+
+  costEls.minAVC.textContent=money(avcMin.AVC);
+  costEls.minAVCq.textContent=`at about ${avcMin.Q} pizzas`;
+  costEls.minATC.textContent=money(atcMin.ATC);
+  costEls.minATCq.textContent=`at about ${atcMin.Q} pizzas`;
+  costEls.minMC.textContent=money(mcMin.MC);
+  costEls.minMCq.textContent=`near ${mcMin.Q} pizzas`;
+
+  const allVals=[];
+  rows.forEach(r=>{
+    if(show.ATC) allVals.push(r.ATC);
+    if(show.AVC) allVals.push(r.AVC);
+    if(show.MC) allVals.push(r.MC);
+  });
+  const maxY=Math.max(10,...allVals)*1.12;
+  const maxQ=Math.max(...rows.map(r=>r.Q));
+
+  const W=760,H=410,p={l:66,r:24,t:28,b:56};
+  const iw=W-p.l-p.r, ih=H-p.t-p.b;
+  const sx=q=>p.l+(q/maxQ)*iw;
+  const sy=v=>p.t+ih-(v/maxY)*ih;
+  const ns='http://www.w3.org/2000/svg';
+
+  costEls.chart.innerHTML='';
+
+  const title=document.createElementNS(ns,'title');
+  title.id='costChartTitle';
+  title.textContent='Pizza shop short-run cost curves';
+  costEls.chart.appendChild(title);
+
+  const desc=document.createElementNS(ns,'desc');
+  desc.id='costChartDesc';
+  desc.textContent=`Cost curves generated from ${costEls.costOvens.value} fixed oven${+costEls.costOvens.value===1?'':'s'}, fixed cost ${costEls.fixedCostVal.textContent} per shift, wage ${costEls.wageCostVal.textContent} per worker, and ingredient cost ${costEls.ingredientCostVal.textContent} per pizza.`;
+  costEls.chart.appendChild(desc);
+
+  for(let i=0;i<=5;i++){
+    const y=p.t+(i/5)*ih;
+    const line=document.createElementNS(ns,'line');
+    line.setAttribute('x1',p.l); line.setAttribute('x2',W-p.r);
+    line.setAttribute('y1',y); line.setAttribute('y2',y);
+    line.setAttribute('stroke','#e5e9ee');
+    costEls.chart.appendChild(line);
+
+    const val=maxY*(1-i/5);
+    const tx=document.createElementNS(ns,'text');
+    tx.setAttribute('x',p.l-10); tx.setAttribute('y',y+4);
+    tx.setAttribute('text-anchor','end');
+    tx.setAttribute('font-size','12'); tx.setAttribute('fill','#5d6977');
+    tx.textContent='$'+val.toFixed(0);
+    costEls.chart.appendChild(tx);
+  }
+
+  for(let i=0;i<=5;i++){
+    const q=maxQ*(i/5);
+    const x=sx(q);
+    const tx=document.createElementNS(ns,'text');
+    tx.setAttribute('x',x); tx.setAttribute('y',H-26);
+    tx.setAttribute('text-anchor','middle');
+    tx.setAttribute('font-size','12'); tx.setAttribute('fill','#5d6977');
+    tx.textContent=Math.round(q);
+    costEls.chart.appendChild(tx);
+  }
+
+  const xlab=document.createElementNS(ns,'text');
+  xlab.setAttribute('x',p.l+iw/2); xlab.setAttribute('y',H-6);
+  xlab.setAttribute('text-anchor','middle'); xlab.setAttribute('font-weight','700');
+  xlab.textContent='Pizza output per shift (Q)';
+  costEls.chart.appendChild(xlab);
+
+  const ylab=document.createElementNS(ns,'text');
+  ylab.setAttribute('transform','translate(17 '+(p.t+ih/2)+') rotate(-90)');
+  ylab.setAttribute('text-anchor','middle'); ylab.setAttribute('font-weight','700');
+  ylab.textContent='Cost per pizza';
+  costEls.chart.appendChild(ylab);
+
+  const curveSpecs=[
+    {key:'ATC',stroke:'#1f5f8b',width:4,dash:'',marker:'circle',label:'ATC'},
+    {key:'AVC',stroke:'#2e6b3f',width:4,dash:'12 7',marker:'square',label:'AVC'},
+    {key:'MC',stroke:'#9e1b32',width:4,dash:'3 7',marker:'triangle',label:'MC'}
+  ];
+
+  function addMarker(spec,x,y){
+    if(spec.marker==='circle'){
+      const c=document.createElementNS(ns,'circle');
+      c.setAttribute('cx',x); c.setAttribute('cy',y);
+      c.setAttribute('r','4'); c.setAttribute('fill','white');
+      c.setAttribute('stroke',spec.stroke); c.setAttribute('stroke-width','2.5');
+      costEls.chart.appendChild(c);
+    } else if(spec.marker==='square'){
+      const r=document.createElementNS(ns,'rect');
+      r.setAttribute('x',x-4); r.setAttribute('y',y-4);
+      r.setAttribute('width','8'); r.setAttribute('height','8');
+      r.setAttribute('fill','white');
+      r.setAttribute('stroke',spec.stroke); r.setAttribute('stroke-width','2.5');
+      costEls.chart.appendChild(r);
+    } else {
+      const t=document.createElementNS(ns,'polygon');
+      t.setAttribute('points',`${x},${y-5} ${x-5},${y+4} ${x+5},${y+4}`);
+      t.setAttribute('fill','white');
+      t.setAttribute('stroke',spec.stroke); t.setAttribute('stroke-width','2.5');
+      costEls.chart.appendChild(t);
+    }
+  }
+
+  curveSpecs.forEach(spec=>{
+    if(!show[spec.key]) return;
+    const pts=rows.map(r=>`${sx(r.Q)},${sy(r[spec.key])}`).join(' ');
+    const poly=document.createElementNS(ns,'polyline');
+    poly.setAttribute('points',pts);
+    poly.setAttribute('fill','none');
+    poly.setAttribute('stroke',spec.stroke);
+    poly.setAttribute('stroke-width',spec.width);
+    if(spec.dash) poly.setAttribute('stroke-dasharray',spec.dash);
+    poly.setAttribute('stroke-linejoin','round');
+    poly.setAttribute('stroke-linecap','round');
+    costEls.chart.appendChild(poly);
+
+    rows.forEach(r=>addMarker(spec,sx(r.Q),sy(r[spec.key])));
+
+    const last=rows[rows.length-1];
+    const lbl=document.createElementNS(ns,'text');
+    lbl.setAttribute('x',Math.min(W-54,sx(last.Q)+8));
+    lbl.setAttribute('y',sy(last[spec.key])+(spec.key==='MC'?-8:(spec.key==='AVC'?4:14)));
+    lbl.setAttribute('font-size','13');
+    lbl.setAttribute('font-weight','800');
+    lbl.setAttribute('fill','#18202a');
+    lbl.textContent=spec.label;
+    costEls.chart.appendChild(lbl);
+  });
+
+  costEls.insight.innerHTML=
+    `<b>What to notice:</b> With these assumptions, AVC is lowest near ${avcMin.Q} pizzas and ATC is lowest near ${atcMin.Q} pizzas. `+
+    `MC reaches its low point earlier, when marginal product is strongest, and then rises as diminishing marginal product takes over. `+
+    `Changing fixed cost moves ATC but does not directly move AVC or MC; changing the wage shifts both AVC and MC; changing ingredient cost adds to variable cost per pizza.`;
+}
+
+['fixedCost','wageCost','ingredientCost','costOvens','showATC','showAVC','showMC'].forEach(id=>{
+  document.getElementById(id).addEventListener('input',drawCostChart);
+  document.getElementById(id).addEventListener('change',drawCostChart);
+});
+
+document.getElementById('resetCostsBtn').addEventListener('click',()=>{
+  costEls.fixedCost.value=240;
+  costEls.wageCost.value=100;
+  costEls.ingredientCost.value=3;
+  costEls.costOvens.value=2;
+  costEls.showATC.checked=true;
+  costEls.showAVC.checked=true;
+  costEls.showMC.checked=true;
+  drawCostChart();
+});
+
+drawCostChart();
+
+
+update();
+</script>
+</body>
+</html>

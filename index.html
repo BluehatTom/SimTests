@@ -1,0 +1,141 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>ECO 201 Microeconomics Interactive Tools</title>
+<style>
+:root{
+  --miami:#c41230;
+  --miami-dark:#8c0d22;
+  --ink:#202124;
+  --muted:#5f6368;
+  --bg:#f6f7f9;
+  --card:#fff;
+  --border:#d9dde3;
+  --focus:#145ea8;
+  --soft:#fff5f6;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{margin:0;font-family:Arial,Helvetica,sans-serif;background:var(--bg);color:var(--ink);line-height:1.5}
+a{color:inherit}
+.skip-link{position:absolute;left:-9999px;top:0;background:#fff;color:#000;padding:10px 14px;border:3px solid var(--focus);z-index:1000}
+.skip-link:focus{left:12px;top:12px}
+header{background:linear-gradient(135deg,var(--miami-dark),var(--miami));color:#fff}
+.header-inner{max-width:1180px;margin:0 auto;padding:32px 20px}
+h1{font-size:clamp(2rem,5vw,3.25rem);line-height:1.05;margin:0 0 10px}
+header p{max-width:800px;margin:0;font-size:1.08rem}
+main{max-width:1180px;margin:0 auto;padding:24px 20px 40px}
+.intro{background:#fff;border:1px solid var(--border);border-radius:14px;padding:18px;margin-bottom:18px}
+.path{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:8px;margin:16px 0 4px}
+.path a{text-decoration:none;background:#fff;border:1px solid var(--border);border-radius:10px;padding:10px;text-align:center;font-weight:700;font-size:.9rem}
+.path a:hover{background:var(--soft);border-color:var(--miami)}
+.path a:focus-visible,.launch:focus-visible{outline:3px solid var(--focus);outline-offset:3px}
+.section-title{margin:28px 0 12px;font-size:1.55rem}
+.grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px}
+.card{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:18px;display:flex;flex-direction:column;min-height:240px;box-shadow:0 4px 16px rgba(0,0,0,.04)}
+.number{width:38px;height:38px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;background:var(--miami);color:#fff;font-weight:800;margin-bottom:10px}
+.card h2,.card h3{margin:0 0 8px}
+.card p{margin:0 0 12px;color:var(--muted)}
+.topics{margin:0 0 16px;padding-left:20px}
+.topics li{margin:3px 0}
+.launch{display:inline-block;margin-top:auto;text-align:center;text-decoration:none;background:var(--miami);color:#fff;font-weight:800;padding:11px 14px;border-radius:10px;min-height:44px}
+.launch:hover{background:var(--miami-dark)}
+.other{margin-top:30px;border-top:3px solid var(--border);padding-top:22px}
+.other .card{min-height:0}
+.note{font-size:.92rem;color:var(--muted)}
+footer{max-width:1180px;margin:0 auto;padding:0 20px 30px;color:var(--muted);font-size:.9rem}
+@media(max-width:900px){.path{grid-template-columns:repeat(3,1fr)}}
+@media(max-width:700px){.grid{grid-template-columns:1fr}.path{grid-template-columns:1fr 1fr}.header-inner{padding:26px 16px}main{padding:18px 12px 32px}}
+@media(max-width:420px){.path{grid-template-columns:1fr}}
+@media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}}
+</style>
+</head>
+<body>
+<a class="skip-link" href="#main">Skip to main content</a>
+<header>
+  <div class="header-inner">
+    <h1>ECO 201 Microeconomics Interactive Tools</h1>
+    <p>Explore markets, production, costs, revenue, and firm decisions with interactive graphs and simulations. The tools are arranged in a recommended learning sequence.</p>
+  </div>
+</header>
+<main id="main" tabindex="-1">
+  <section class="intro" aria-labelledby="start-heading">
+    <h2 id="start-heading">Recommended learning path</h2>
+    <p>Start with how markets determine price and quantity, then move inside the firm: production, costs, revenue, and profit-maximizing decisions.</p>
+    <nav class="path" aria-label="Recommended learning path">
+      <a href="#tool1">1. Supply &amp; Demand</a>
+      <a href="#tool2">2. Production</a>
+      <a href="#tool3">3. Cost Curves</a>
+      <a href="#tool4">4. Cost, Revenue &amp; Profit</a>
+      <a href="#tool5">5. Profit Maximization</a>
+      <a href="#tool6">6. Profit or Loss</a>
+    </nav>
+  </section>
+
+  <h2 class="section-title">Microeconomics tools</h2>
+  <div class="grid">
+    <article class="card" id="tool1">
+      <span class="number" aria-hidden="true">1</span>
+      <h3>Supply &amp; Demand Explorer</h3>
+      <p>Begin with the market. Explore curve shifts, equilibrium, shortages and surpluses, equations, and elasticity.</p>
+      <ul class="topics"><li>Supply and demand shifters</li><li>Market equilibrium</li><li>S/D equations and calculations</li><li>Elasticity</li></ul>
+      <a class="launch" href="tools/supply-demand-explorer.html">Open Supply &amp; Demand Explorer</a>
+    </article>
+
+    <article class="card" id="tool2">
+      <span class="number" aria-hidden="true">2</span>
+      <h3>Pizza Shop Production Function Lab</h3>
+      <p>Move from the market to the firm. See how labor, capital, materials, technology, and organization affect output.</p>
+      <ul class="topics"><li>Production function</li><li>Total, marginal, and average product</li><li>Diminishing marginal returns</li><li>Short run and long run</li></ul>
+      <a class="launch" href="tools/production-function-pizza-lab.html">Open Production Function Lab</a>
+    </article>
+
+    <article class="card" id="tool3">
+      <span class="number" aria-hidden="true">3</span>
+      <h3>Cost Curve Explorer</h3>
+      <p>Connect production decisions to costs and see why marginal cost intersects average cost curves at their minimum points.</p>
+      <ul class="topics"><li>ATC, AVC, and MC</li><li>Fixed vs. variable costs</li><li>Curve intersections</li><li>Changes in cost conditions</li></ul>
+      <a class="launch" href="tools/cost-curve-explorer.html">Open Cost Curve Explorer</a>
+    </article>
+
+    <article class="card" id="tool4">
+      <span class="number" aria-hidden="true">4</span>
+      <h3>Total Cost, Revenue &amp; Profit</h3>
+      <p>Compare total cost and total revenue across output levels and connect their difference to the firm's profit.</p>
+      <ul class="topics"><li>Total cost</li><li>Total revenue</li><li>Profit</li><li>How output changes financial results</li></ul>
+      <a class="launch" href="tools/total-cost-revenue-profit.html">Open Cost, Revenue &amp; Profit Tool</a>
+    </article>
+
+    <article class="card" id="tool5">
+      <span class="number" aria-hidden="true">5</span>
+      <h3>Profit Maximization: Market Price, Costs &amp; Output</h3>
+      <p>Use the competitive firm's core decision rule: choose the output where marginal revenue is approximately equal to marginal cost.</p>
+      <ul class="topics"><li>Market price and MR</li><li>Marginal cost</li><li>MR = MC decision rule</li><li>Optimal quantity</li></ul>
+      <a class="launch" href="tools/profit-maximization.html">Open Profit Maximization Tool</a>
+    </article>
+
+    <article class="card" id="tool6">
+      <span class="number" aria-hidden="true">6</span>
+      <h3>Profit, Break-Even &amp; Loss Explorer</h3>
+      <p>After finding the profit-maximizing quantity, compare price with average cost to determine whether the firm earns profit, breaks even, or incurs a loss.</p>
+      <ul class="topics"><li>Profit-maximizing output</li><li>Price vs. average cost</li><li>Economic profit</li><li>Break-even and loss</li></ul>
+      <a class="launch" href="tools/profit-break-even-loss.html">Open Profit / Break-Even / Loss Explorer</a>
+    </article>
+  </div>
+
+  <section class="other" aria-labelledby="other-heading">
+    <h2 id="other-heading">Additional course tool</h2>
+    <article class="card">
+      <h3>User Testing Simulator</h3>
+      <p>This tool is included in the package, but it is not part of the ECO 201 microeconomics sequence. It supports design thinking and user-research practice.</p>
+      <a class="launch" href="tools/user-testing-simulator.html">Open User Testing Simulator</a>
+    </article>
+  </section>
+
+  <p class="note"><strong>Hosting note:</strong> Keep the <code>index.html</code> file and the <code>tools</code> folder together. Upload the entire folder structure to GitHub Pages or another web host so all menu links continue to work.</p>
+</main>
+<footer>Designed as a course navigation hub for ECO 201 interactive learning tools.</footer>
+</body>
+</html>

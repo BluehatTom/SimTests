@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Cost Curve Explorer: ATC, AVC & MC</title>
+  <style>
+    :root{
+      --viz-panel:#f5f6f8;--viz-card:#ffffff;--viz-text:#1f2937;--viz-muted:#5f6b7a;
+      --viz-border:#cfd6df;--viz-accent:#8b1e2d;--viz-accent-bg:#f6e9ec;
+      --viz-series-2:#7a1f2b;--viz-series-3:#2563eb;--viz-series-4:#15803d;
+    }
+    body{font-family:Arial,Helvetica,sans-serif;margin:0;padding:24px;background:#fff;color:var(--viz-text)}
+    #costCurveLab{max-width:1180px;margin:0 auto}
+    .grid2{display:grid;grid-template-columns:minmax(0,1.65fr) minmax(260px,.85fr);gap:16px}
+    .grid-half{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:16px}
+    .panel{background:var(--viz-card);border:1px solid var(--viz-border);border-radius:14px;padding:16px}
+    .control{display:grid;grid-template-columns:minmax(120px,1fr) 2fr 62px;gap:10px;align-items:center;margin:10px 0}
+    input[type=range]{width:100%;accent-color:var(--viz-accent)}
+    button{min-height:44px;border:1px solid var(--viz-border);border-radius:10px;padding:8px 12px;background:var(--viz-card);font-weight:600;cursor:pointer}
+    button:hover{background:var(--viz-accent-bg)}
+    button:focus-visible,input:focus-visible,summary:focus-visible{outline:3px solid var(--viz-accent);outline-offset:2px}
+    .preset.active{background:var(--viz-accent-bg);border-color:var(--viz-accent)}
+    .metric{border-left:4px solid var(--viz-border);padding-left:10px}
+    .atcKey{border-color:var(--viz-series-2)} .avcKey{border-color:var(--viz-series-3)} .mcKey{border-color:var(--viz-series-4)}
+    .formula{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;background:var(--viz-panel);padding:2px 6px;border-radius:6px}
+    .svgwrap{overflow-x:auto}.svgwrap svg{display:block;width:100%;min-width:540px;height:auto}
+    .axis{stroke:var(--viz-muted);stroke-width:1.3}.grid{stroke:var(--viz-border);stroke-width:1}
+    .curve{fill:none;stroke-width:3.2;vector-effect:non-scaling-stroke}
+    .atc{stroke:var(--viz-series-2)} .avc{stroke:var(--viz-series-3);stroke-dasharray:9 5} .mc{stroke:var(--viz-series-4);stroke-dasharray:3 4}
+    .guide{stroke:var(--viz-muted);stroke-width:1.3;stroke-dasharray:4 4}.selectedDot{stroke:var(--viz-text);stroke-width:1.5}.minDot{fill:var(--viz-text)}
+    .callout{background:var(--viz-panel);border-left:4px solid var(--viz-accent);padding:12px 14px;border-radius:8px}
+    .good{font-weight:700}
+    table{width:100%;border-collapse:collapse;font-size:.9rem} th,td{padding:7px 8px;border-bottom:1px solid var(--viz-border);text-align:right} th:first-child,td:first-child{text-align:left}
+    details{margin-top:12px} summary{cursor:pointer;font-weight:700;min-height:44px;display:flex;align-items:center}
+    .muted{color:var(--viz-muted)} .small{font-size:.9rem}.row{display:flex;flex-wrap:wrap;gap:8px}.space-between{display:flex;flex-wrap:wrap;justify-content:space-between;gap:12px}
+    .metrics{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-top:16px}
+    .sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
+    @media(max-width:800px){.grid2,.grid-half{grid-template-columns:1fr}}
+    @media(max-width:600px){.control{grid-template-columns:1fr}.metrics{grid-template-columns:1fr}}
+  </style>
+</head>
+<body>
+<div id="costCurveLab">
+  <div class="grid2">
+    <section class="panel">
+      <div class="space-between">
+        <div>
+          <h2>Explore the three short-run cost curves</h2>
+          <p class="small muted">Change the firm's costs, then move the output marker to see what happens to ATC, AVC, and MC.</p>
+        </div>
+        <button type="button" id="resetBtn">Reset</button>
+      </div>
+
+      <div class="svgwrap">
+        <svg id="chart" viewBox="0 0 720 430" role="img" aria-labelledby="chartTitle chartDesc">
+          <title id="chartTitle">Interactive average total cost, average variable cost, and marginal cost graph</title>
+          <desc id="chartDesc">Output is shown on the horizontal axis and cost per unit on the vertical axis. Average total cost is a solid line, average variable cost is dashed, and marginal cost is dotted. Controls alter the cost data.</desc>
+          <g id="grid"></g><g id="axes"></g>
+          <path id="atcPath" class="curve atc"></path>
+          <path id="avcPath" class="curve avc"></path>
+          <path id="mcPath" class="curve mc"></path>
+          <g id="minima"></g><g id="selection"></g><g id="labels"></g>
+        </svg>
+      </div>
+
+      <div class="row small" aria-label="Chart legend">
+        <span><span aria-hidden="true" style="display:inline-block;width:28px;border-top:3px solid var(--viz-series-2);vertical-align:middle;margin-right:6px"></span><strong>ATC</strong> — solid</span>
+        <span><span aria-hidden="true" style="display:inline-block;width:28px;border-top:3px dashed var(--viz-series-3);vertical-align:middle;margin-right:6px"></span><strong>AVC</strong> — dashed</span>
+        <span><span aria-hidden="true" style="display:inline-block;width:28px;border-top:3px dotted var(--viz-series-4);vertical-align:middle;margin-right:6px"></span><strong>MC</strong> — dotted</span>
+      </div>
+
+      <div class="row" style="margin-top:12px" aria-label="Curve explanations">
+        <button type="button" class="explainBtn" data-curve="atc">Explain ATC</button>
+        <button type="button" class="explainBtn" data-curve="avc">Explain AVC</button>
+        <button type="button" class="explainBtn" data-curve="mc">Explain MC</button>
+      </div>
+
+      <div style="margin-top:16px">
+        <label for="qSlider"><strong>Explore an output level: <output id="qOut" for="qSlider">60</output> units</strong></label>
+        <input id="qSlider" type="range" min="15" max="100" step="1" value="60" aria-describedby="qHelp">
+        <p id="qHelp" class="small muted">Move this slider to compare the marginal cost of the next unit with the firm's current average costs.</p>
+      </div>
+
+      <div id="readout" class="metrics" aria-live="polite"></div>
+      <div id="interpretation" class="callout" style="margin-top:16px" aria-live="polite"></div>
+    </section>
+
+    <aside class="panel">
+      <h2>Change the firm's cost conditions</h2>
+      <p class="small muted">Watch which curves move—and which do not.</p>
+
+      <div class="control">
+        <label for="fixed"><strong>Fixed cost</strong><br><span class="small muted">Rent, equipment, insurance</span></label>
+        <input id="fixed" type="range" min="40" max="500" step="10" value="180">
+        <output id="fixedOut" for="fixed">$180</output>
+      </div>
+      <div class="control">
+        <label for="base"><strong>Base variable cost</strong><br><span class="small muted">Materials and basic labor</span></label>
+        <input id="base" type="range" min="3" max="12" step="0.25" value="8">
+        <output id="baseOut" for="base">$8.00</output>
+      </div>
+      <div class="control">
+        <label for="efficiency"><strong>Early efficiency gains</strong><br><span class="small muted">Learning and specialization</span></label>
+        <input id="efficiency" type="range" min="0.02" max="0.12" step="0.005" value="0.08">
+        <output id="efficiencyOut" for="efficiency">0.080</output>
+      </div>
+      <div class="control">
+        <label for="congestion"><strong>Capacity pressure</strong><br><span class="small muted">Crowding and diminishing returns</span></label>
+        <input id="congestion" type="range" min="0.0003" max="0.0015" step="0.00005" value="0.0008">
+        <output id="congestionOut" for="congestion">0.00080</output>
+      </div>
+
+      <div style="margin-top:20px">
+        <p><strong>Try a scenario</strong></p>
+        <div class="row">
+          <button type="button" class="preset" data-preset="rent">Rent rises</button>
+          <button type="button" class="preset" data-preset="wages">Variable costs rise</button>
+          <button type="button" class="preset" data-preset="productive">More productive</button>
+          <button type="button" class="preset" data-preset="crowded">Capacity crunch</button>
+        </div>
+      </div>
+
+      <div style="margin-top:20px" class="small">
+        <h3>Model used in this lab</h3>
+        <p><span class="formula">AVC = a − bQ + cQ²</span></p>
+        <p><span class="formula">ATC = Fixed Cost ÷ Q + AVC</span></p>
+        <p><span class="formula">MC = a − 2bQ + 3cQ²</span></p>
+        <p class="muted">The numbers are illustrative. The starting values are chosen so the three curves are easy to distinguish while preserving their economic relationships.</p>
+      </div>
+    </aside>
+  </div>
+
+  <section class="grid-half">
+    <div class="panel">
+      <h2>Why do the intersections matter?</h2>
+      <p><strong>MC below an average → the average falls.</strong> Think of a student whose next test score is below their current average.</p>
+      <p><strong>MC above an average → the average rises.</strong> A new value above the average pulls the average upward.</p>
+      <p><strong>MC = AVC at minimum AVC.</strong> That is where AVC stops falling and starts rising.</p>
+      <p><strong>MC = ATC at minimum ATC.</strong> That is where ATC stops falling and starts rising.</p>
+      <p><strong>Fixed cost does not affect MC or AVC.</strong> Raise rent and ATC shifts, but MC and AVC stay put.</p>
+      <div id="mins" class="callout"></div>
+    </div>
+
+    <div class="panel">
+      <h2>Prediction challenge</h2>
+      <p class="small">Before moving a slider, predict what should happen.</p>
+      <form id="quiz">
+        <fieldset>
+          <legend><strong>If monthly rent rises but production technology does not change, what happens?</strong></legend>
+          <p><label><input type="radio" name="quiz" value="a"> All three curves rise.</label></p>
+          <p><label><input type="radio" name="quiz" value="b"> ATC rises; AVC and MC do not move.</label></p>
+          <p><label><input type="radio" name="quiz" value="c"> MC rises; ATC and AVC do not move.</label></p>
+          <p><label><input type="radio" name="quiz" value="d"> None of the curves change.</label></p>
+        </fieldset>
+        <button type="submit">Check prediction</button>
+      </form>
+      <div id="quizFeedback" class="small" style="margin-top:12px" aria-live="polite"></div>
+    </div>
+  </section>
+
+  <section class="panel" style="margin-top:16px">
+    <h2>Cost data</h2>
+    <p class="small muted">The selected row changes with the output slider. A full table is available below for students who prefer the numerical representation.</p>
+    <div style="overflow-x:auto">
+      <table>
+        <caption class="sr-only">Cost values at the currently selected output level</caption>
+        <thead><tr><th scope="col">Output Q</th><th scope="col">Fixed cost/unit</th><th scope="col">AVC</th><th scope="col">ATC</th><th scope="col">MC</th></tr></thead>
+        <tbody id="dataRow"></tbody>
+      </table>
+    </div>
+    <details>
+      <summary>Show full data table, output 20 through 100</summary>
+      <div style="overflow-x:auto">
+        <table>
+          <caption class="sr-only">Average total cost, average variable cost, marginal cost, and fixed cost per unit at selected output levels</caption>
+          <thead><tr><th scope="col">Output Q</th><th scope="col">Fixed cost/unit</th><th scope="col">AVC</th><th scope="col">ATC</th><th scope="col">MC</th></tr></thead>
+          <tbody id="fullData"></tbody>
+        </table>
+      </div>
+    </details>
+  </section>
+
+<script>
+(()=>{
+  const root=document.getElementById('costCurveLab');
+  const $=s=>root.querySelector(s), $$=s=>[...root.querySelectorAll(s)];
+  const fixed=$('#fixed'),base=$('#base'),eff=$('#efficiency'),cong=$('#congestion'),qSlider=$('#qSlider');
+  const svg=$('#chart'),grid=$('#grid'),axes=$('#axes'),labels=$('#labels'),selection=$('#selection'),minima=$('#minima');
+  const paths={atc:$('#atcPath'),avc:$('#avcPath'),mc:$('#mcPath')};
+  const L=65,R=690,T=25,B=365,W=R-L,H=B-T,QMIN=15,QMAX=100;
+  const clamp=(v,a,b)=>Math.max(a,Math.min(b,v)), money=v=>'$'+v.toFixed(2);
+  function params(){return{F:+fixed.value,a:+base.value,b:+eff.value,c:+cong.value}}
+  function vals(q){const p=params(),avc=p.a-p.b*q+p.c*q*q,atc=p.F/q+avc,mc=p.a-2*p.b*q+3*p.c*q*q;return{avc,atc,mc,afc:p.F/q}}
+  function data(){const d=[];for(let q=QMIN;q<=QMAX;q++)d.push({q,...vals(q)});return d}
+  function minOf(d,key){return d.reduce((m,r)=>r[key]<m[key]?r:m,d[0])}
+  function el(tag,attrs={},txt=''){const n=document.createElementNS('http://www.w3.org/2000/svg',tag);Object.entries(attrs).forEach(([k,v])=>n.setAttribute(k,v));if(txt)n.textContent=txt;return n}
+  function pathFor(d,key,x,y){return d.map((r,i)=>(i?'L':'M')+x(r.q).toFixed(1)+','+y(r[key]).toFixed(1)).join(' ')}
+  function renderFullTable(){const rows=[];for(let q=20;q<=100;q+=10){const v=vals(q);rows.push(`<tr><th scope="row">${q}</th><td>${money(v.afc)}</td><td>${money(v.avc)}</td><td>${money(v.atc)}</td><td>${money(v.mc)}</td></tr>`)}$('#fullData').innerHTML=rows.join('')}
+  function render(){
+    $('#fixedOut').textContent='$'+(+fixed.value).toFixed(0);$('#baseOut').textContent='$'+(+base.value).toFixed(2);$('#efficiencyOut').textContent=(+eff.value).toFixed(3);$('#congestionOut').textContent=(+cong.value).toFixed(5);$('#qOut').textContent=qSlider.value;
+    const d=data(), maxRaw=Math.max(...d.flatMap(r=>[r.atc,r.avc,r.mc])), ymax=Math.max(20,Math.ceil(maxRaw/5)*5);
+    const x=q=>L+((q-QMIN)/(QMAX-QMIN))*W, y=v=>B-(v/ymax)*H;
+    grid.innerHTML='';axes.innerHTML='';labels.innerHTML='';minima.innerHTML='';selection.innerHTML='';
+    for(let i=0;i<=5;i++){const val=ymax*i/5,yy=y(val);grid.appendChild(el('line',{x1:L,y1:yy,x2:R,y2:yy,class:'grid'}));labels.appendChild(el('text',{x:L-10,y:yy+4,'text-anchor':'end','font-size':'12',fill:'var(--viz-muted)'},'$'+val.toFixed(0)))}
+    [20,40,60,80,100].forEach(v=>{const xx=x(v);grid.appendChild(el('line',{x1:xx,y1:T,x2:xx,y2:B,class:'grid'}));labels.appendChild(el('text',{x:xx,y:B+22,'text-anchor':'middle','font-size':'12',fill:'var(--viz-muted)'},String(v)))});
+    axes.appendChild(el('line',{x1:L,y1:B,x2:R,y2:B,class:'axis'}));axes.appendChild(el('line',{x1:L,y1:T,x2:L,y2:B,class:'axis'}));
+    labels.appendChild(el('text',{x:(L+R)/2,y:410,'text-anchor':'middle','font-size':'14','font-weight':'700',fill:'var(--viz-text)'},'Output (Q)'));
+    labels.appendChild(el('text',{x:17,y:(T+B)/2,transform:'rotate(-90 17 '+((T+B)/2)+')','text-anchor':'middle','font-size':'14','font-weight':'700',fill:'var(--viz-text)'},'Cost per unit ($)'));
+    ['atc','avc','mc'].forEach(k=>paths[k].setAttribute('d',pathFor(d,k,x,y)));
+    const mA=minOf(d,'avc'),mT=minOf(d,'atc');
+    [{r:mA,key:'avc',txt:'Min AVC'},{r:mT,key:'atc',txt:'Min ATC'}].forEach(o=>{minima.appendChild(el('circle',{cx:x(o.r.q),cy:y(o.r[o.key]),r:5,class:'minDot'}));minima.appendChild(el('text',{x:x(o.r.q)+8,y:y(o.r[o.key])-8,'font-size':'12','font-weight':'700',fill:'var(--viz-text)'},o.txt))});
+    const q=+qSlider.value,v=vals(q),xx=x(q);selection.appendChild(el('line',{x1:xx,y1:T,x2:xx,y2:B,class:'guide'}));
+    [['atc','var(--viz-series-2)'],['avc','var(--viz-series-3)'],['mc','var(--viz-series-4)']].forEach(([k,col])=>selection.appendChild(el('circle',{cx:xx,cy:y(v[k]),r:5,fill:col,class:'selectedDot'})));
+    const end=d[d.length-1];[['ATC','atc',-12],['AVC','avc',4],['MC','mc',0]].forEach(([txt,k,off])=>labels.appendChild(el('text',{x:R-6,y:clamp(y(end[k])+off,T+12,B-6),'text-anchor':'end','font-size':'13','font-weight':'700',fill:k==='atc'?'var(--viz-series-2)':k==='avc'?'var(--viz-series-3)':'var(--viz-series-4)'},txt)));
+    $('#readout').innerHTML=`<div class="metric atcKey"><div class="small muted">Average total cost</div><div style="font-size:1.25rem;font-weight:700">${money(v.atc)}</div><div class="small">per unit</div></div><div class="metric avcKey"><div class="small muted">Average variable cost</div><div style="font-size:1.25rem;font-weight:700">${money(v.avc)}</div><div class="small">per unit</div></div><div class="metric mcKey"><div class="small muted">Marginal cost</div><div style="font-size:1.25rem;font-weight:700">${money(v.mc)}</div><div class="small">next unit</div></div>`;
+    let msg;if(v.mc<v.avc)msg=`At Q = ${q}, MC is below both averages. Producing another unit pulls AVC and ATC downward.`;else if(v.mc<v.atc)msg=`At Q = ${q}, MC is above AVC but below ATC. AVC is being pulled upward, while ATC is still being pulled downward.`;else msg=`At Q = ${q}, MC is above both averages. Producing another unit pulls both AVC and ATC upward.`;
+    $('#interpretation').innerHTML='<strong>What the graph is saying:</strong> '+msg;
+    $('#mins').innerHTML=`<strong>Current minimums:</strong><br>AVC reaches its minimum near <strong>Q = ${mA.q}</strong>, where MC ≈ AVC at ${money(mA.avc)}.<br>ATC reaches its minimum near <strong>Q = ${mT.q}</strong>, where MC ≈ ATC at ${money(mT.atc)}.`;
+    $('#dataRow').innerHTML=`<tr><th scope="row">${q}</th><td>${money(v.afc)}</td><td>${money(v.avc)}</td><td>${money(v.atc)}</td><td>${money(v.mc)}</td></tr>`;
+    qSlider.setAttribute('aria-valuetext',`Output ${q} units. Average total cost ${money(v.atc)} per unit. Average variable cost ${money(v.avc)} per unit. Marginal cost ${money(v.mc)} for the next unit.`);
+    svg.setAttribute('aria-label',`Cost graph at output ${q}. Average total cost ${money(v.atc)}, average variable cost ${money(v.avc)}, marginal cost ${money(v.mc)}.`);
+    renderFullTable();
+  }
+  [fixed,base,eff,cong,qSlider].forEach(i=>i.addEventListener('input',()=>{$$('.preset').forEach(b=>b.classList.remove('active'));render()}));
+  const presets={rent:{F:360,a:8,b:.08,c:.0008},wages:{F:180,a:10,b:.075,c:.00085},productive:{F:180,a:7,b:.10,c:.00065},crowded:{F:180,a:8,b:.06,c:.00125}};
+  $$('.preset').forEach(btn=>btn.addEventListener('click',()=>{const p=presets[btn.dataset.preset];fixed.value=p.F;base.value=p.a;eff.value=p.b;cong.value=p.c;$$('.preset').forEach(b=>b.classList.toggle('active',b===btn));render()}));
+  $('#resetBtn').addEventListener('click',()=>{fixed.value=180;base.value=8;eff.value=.08;cong.value=.0008;qSlider.value=60;$$('.preset').forEach(b=>b.classList.remove('active'));$('#quizFeedback').textContent='';$('#quiz').reset();render()});
+  $('#quiz').addEventListener('submit',e=>{e.preventDefault();const pick=$('input[name=quiz]:checked'),out=$('#quizFeedback');if(!pick){out.textContent='Choose an answer first.';return}if(pick.value==='b')out.innerHTML='<span class="good">Correct.</span> Fixed cost is part of ATC, but not AVC or MC. Try the “Rent rises” scenario and watch the graph.';else out.innerHTML='<strong>Not quite.</strong> Rent is a fixed cost. It raises fixed cost per unit and therefore ATC, but it does not change the variable cost of producing an additional unit.'});
+  const defs={atc:'Average total cost equals total cost divided by output. It includes both fixed and variable costs.',avc:'Average variable cost equals variable cost divided by output. It excludes fixed costs.',mc:'Marginal cost is the additional cost of producing one more unit. It crosses AVC and ATC at their minimum points.'};
+  $$('.explainBtn').forEach(btn=>btn.addEventListener('click',()=>{$('#interpretation').innerHTML=`<strong>${btn.textContent.replace('Explain ','')}:</strong> ${defs[btn.dataset.curve]}`}));
+  render();
+})();
+</script>
+</div>
+</body>
+</html>

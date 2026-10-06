@@ -1,0 +1,317 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Profit, Break-Even & Loss Explorer</title>
+  <style>
+    :root{
+      --miami:#c41230;
+      --miami-dark:#8c0d22;
+      --blue:#315f9f;
+      --green:#2f6f4e;
+      --ink:#202124;
+      --muted:#5f6368;
+      --panel:#f7f7f8;
+      --card:#ffffff;
+      --border:#d9dde3;
+    }
+    body{
+      font-family:Arial,Helvetica,sans-serif;
+      margin:0;
+      padding:24px;
+      background:#fff;
+      color:var(--ink);
+    }
+    #profitStatusLab{max-width:1180px;margin:0 auto}
+    .layout{display:grid;grid-template-columns:minmax(0,1.7fr) minmax(260px,.8fr);gap:16px}
+    .card{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:16px}
+    .control{display:grid;grid-template-columns:minmax(150px,1fr) 2fr 72px;gap:12px;align-items:center;margin:14px 0}
+    input[type=range]{width:100%;accent-color:var(--miami)}
+    button{min-height:44px;border:1px solid var(--border);border-radius:10px;background:var(--card);padding:9px 13px;font-weight:700;cursor:pointer}
+    button:hover{background:#fff3f5}
+    button:focus-visible,input:focus-visible{outline:3px solid var(--miami);outline-offset:2px}
+    .graphWrap{overflow-x:auto}
+    svg{display:block;width:100%;min-width:560px;height:auto}
+    .gridline{stroke:var(--border);stroke-width:1}
+    .axis{stroke:var(--muted);stroke-width:1.3}
+    .ac{fill:none;stroke:var(--blue);stroke-width:3}
+    .mc{fill:none;stroke:var(--green);stroke-width:3;stroke-dasharray:4 4}
+    .price{fill:none;stroke:var(--miami);stroke-width:3;stroke-dasharray:10 5}
+    .guide{stroke:var(--miami-dark);stroke-width:1.4;stroke-dasharray:4 4}
+    .optDot{fill:var(--miami);stroke:#fff;stroke-width:2}
+    .metrics{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}
+    .metric{border-top:4px solid var(--miami);padding-top:8px}
+    .big{font-size:1.25rem;font-weight:800}
+    .small{font-size:.9rem}
+    .muted{color:var(--muted)}
+    .status{padding:14px;border-radius:10px;border-left:5px solid var(--miami);background:#fff5f6;font-weight:700}
+    .legend{display:flex;flex-wrap:wrap;gap:18px;font-size:.9rem;margin-top:8px}
+    .swatch{display:inline-block;width:28px;vertical-align:middle;margin-right:6px}
+    .acSwatch{border-top:3px solid var(--blue)}
+    .mcSwatch{border-top:3px dotted var(--green)}
+    .pSwatch{border-top:3px dashed var(--miami)}
+    .toprow{display:flex;flex-wrap:wrap;justify-content:space-between;gap:12px;align-items:flex-start}
+    .row{display:flex;flex-wrap:wrap;gap:8px}
+    .mt{margin-top:16px}
+    @media(max-width:700px){.layout{grid-template-columns:1fr}.control{grid-template-columns:1fr}.metrics{grid-template-columns:1fr 1fr}}
+    @media(max-width:450px){.metrics{grid-template-columns:1fr}}
+  </style>
+</head>
+<body>
+<div id="profitStatusLab">
+  <div class="layout">
+    <section class="card">
+      <div class="toprow">
+        <div>
+          <h2>Is the firm earning a profit?</h2>
+          <p class="small muted">First find the output where <strong>MR = MC</strong>. Then compare market price with average cost at that quantity.</p>
+        </div>
+        <button type="button" id="resetBtn">Reset</button>
+      </div>
+
+      <div class="graphWrap mt">
+        <svg id="chart" viewBox="0 0 720 430" role="img" aria-labelledby="chartTitle chartDesc">
+          <title id="chartTitle">Average cost, marginal cost, and market price graph</title>
+          <desc id="chartDesc">The market price is horizontal. Marginal cost rises with output. Average cost is U-shaped. The profit-maximizing quantity is where price, which equals marginal revenue, intersects marginal cost. Profit or loss depends on whether price is above or below average cost at that quantity.</desc>
+          <g id="grid"></g>
+          <g id="axes"></g>
+          <path id="acPath" class="ac"></path>
+          <path id="mcPath" class="mc"></path>
+          <path id="pricePath" class="price"></path>
+          <g id="marks"></g>
+          <g id="labels"></g>
+        </svg>
+      </div>
+
+      <div class="legend" aria-label="Graph legend">
+        <span><span class="swatch acSwatch" aria-hidden="true"></span><strong>Average cost</strong> — solid</span>
+        <span><span class="swatch mcSwatch" aria-hidden="true"></span><strong>Marginal cost</strong> — dotted</span>
+        <span><span class="swatch pSwatch" aria-hidden="true"></span><strong>Price = MR</strong> — dashed</span>
+      </div>
+
+      <div class="metrics mt" id="metrics" aria-live="polite"></div>
+      <div class="status mt" id="status" aria-live="polite"></div>
+    </section>
+
+    <aside class="card">
+      <h2>Change price or costs</h2>
+      <p class="small muted">Move the sliders and watch the firm's outcome change.</p>
+
+      <div class="control">
+        <label for="price"><strong>Market price</strong><br><span class="small muted">Price = marginal revenue</span></label>
+        <input id="price" type="range" min="2" max="12" step="0.5" value="7">
+        <output id="priceOut" for="price">$7.00</output>
+      </div>
+
+      <div class="control">
+        <label for="costShift"><strong>Production costs</strong><br><span class="small muted">Shifts AC and MC</span></label>
+        <input id="costShift" type="range" min="-2" max="4" step="0.5" value="0">
+        <output id="costOut" for="costShift">Normal</output>
+      </div>
+
+      <div class="mt">
+        <h3>Try the three cases</h3>
+        <div class="row">
+          <button type="button" class="caseBtn" data-case="profit">Profit</button>
+          <button type="button" class="caseBtn" data-case="break">Break even</button>
+          <button type="button" class="caseBtn" data-case="loss">Loss</button>
+        </div>
+      </div>
+
+      <div class="mt small">
+        <h3>Decision sequence</h3>
+        <p><strong>1.</strong> Find Q* where MR = MC.</p>
+        <p><strong>2.</strong> Read average cost at Q*.</p>
+        <p><strong>3.</strong> Compare price with average cost.</p>
+        <p><strong>Price &gt; AC → profit</strong></p>
+        <p><strong>Price = AC → break even</strong></p>
+        <p><strong>Price &lt; AC → loss</strong></p>
+      </div>
+    </aside>
+  </div>
+
+  <section class="card mt">
+    <h2>Why average cost matters</h2>
+    <p>The <strong>MR = MC</strong> rule tells the firm <em>how much to produce</em>. It does not by itself tell us whether the firm is profitable. To determine profit or loss, compare <strong>price</strong> with <strong>average total cost at Q*</strong>.</p>
+  </section>
+</div>
+
+<script>
+(()=>{
+  const root=document.getElementById('profitStatusLab');
+  const $=s=>root.querySelector(s), $$=s=>[...root.querySelectorAll(s)];
+
+  const price=$('#price');
+  const costShift=$('#costShift');
+  const grid=$('#grid');
+  const axes=$('#axes');
+  const marks=$('#marks');
+  const labels=$('#labels');
+  const acPath=$('#acPath');
+  const mcPath=$('#mcPath');
+  const pricePath=$('#pricePath');
+  const svg=$('#chart');
+
+  const L=65,R=685,T=25,B=360,W=R-L,H=B-T,QMAX=120,YMAX=14;
+  const x=q=>L+(q/QMAX)*W;
+  const y=v=>B-(v/YMAX)*H;
+  const money=v=>'$'+v.toFixed(2);
+
+  function mc(q){
+    return Math.max(.7,1.7+0.0015*Math.pow(q-35,2)+(+costShift.value));
+  }
+
+  function ac(q){
+    return 3.1+0.0012*Math.pow(q-50,2)+(+costShift.value)*0.75;
+  }
+
+  function qStar(){
+    const p=+price.value;
+    let best=0,diff=Infinity;
+    for(let q=0;q<=QMAX;q++){
+      const d=Math.abs(mc(q)-p);
+      if(d<diff){diff=d;best=q;}
+    }
+    return best;
+  }
+
+  function el(tag,attrs={},txt=''){
+    const n=document.createElementNS('http://www.w3.org/2000/svg',tag);
+    Object.entries(attrs).forEach(([k,v])=>n.setAttribute(k,v));
+    if(txt)n.textContent=txt;
+    return n;
+  }
+
+  function curve(fn){
+    let d='';
+    for(let q=5;q<=QMAX;q+=2){
+      d+=(q===5?'M':'L')+x(q).toFixed(1)+','+y(fn(q)).toFixed(1);
+    }
+    return d;
+  }
+
+  function render(){
+    const p=+price.value;
+    const q=qStar();
+    const acq=ac(q);
+    const mcq=mc(q);
+    const shift=+costShift.value;
+
+    $('#priceOut').textContent=money(p);
+    $('#costOut').textContent=shift===0?'Normal':shift>0?'+'+money(shift):'−'+money(Math.abs(shift));
+
+    grid.innerHTML='';
+    axes.innerHTML='';
+    marks.innerHTML='';
+    labels.innerHTML='';
+
+    [0,2,4,6,8,10,12,14].forEach(v=>{
+      const yy=y(v);
+      grid.appendChild(el('line',{x1:L,y1:yy,x2:R,y2:yy,class:'gridline'}));
+      labels.appendChild(el('text',{x:L-8,y:yy+4,'text-anchor':'end','font-size':'12',fill:'#5f6368'},'$'+v));
+    });
+
+    [0,20,40,60,80,100,120].forEach(qv=>{
+      const xx=x(qv);
+      grid.appendChild(el('line',{x1:xx,y1:T,x2:xx,y2:B,class:'gridline'}));
+      labels.appendChild(el('text',{x:xx,y:B+22,'text-anchor':'middle','font-size':'12',fill:'#5f6368'},String(qv)));
+    });
+
+    axes.appendChild(el('line',{x1:L,y1:B,x2:R,y2:B,class:'axis'}));
+    axes.appendChild(el('line',{x1:L,y1:T,x2:L,y2:B,class:'axis'}));
+
+    labels.appendChild(el('text',{
+      x:(L+R)/2,y:410,'text-anchor':'middle','font-size':'14','font-weight':'700',fill:'#202124'
+    },'Quantity'));
+
+    labels.appendChild(el('text',{
+      x:18,y:(T+B)/2,transform:'rotate(-90 18 '+((T+B)/2)+')',
+      'text-anchor':'middle','font-size':'14','font-weight':'700',fill:'#202124'
+    },'Cost / revenue per unit ($)'));
+
+    acPath.setAttribute('d',curve(ac));
+    mcPath.setAttribute('d',curve(mc));
+    pricePath.setAttribute('d',`M${L},${y(p)} L${R},${y(p)}`);
+
+    marks.appendChild(el('line',{x1:x(q),y1:y(p),x2:x(q),y2:B,class:'guide'}));
+    marks.appendChild(el('circle',{cx:x(q),cy:y(mcq),r:7,class:'optDot'}));
+    marks.appendChild(el('circle',{cx:x(q),cy:y(acq),r:5,fill:'#315f9f',stroke:'#fff','stroke-width':2}));
+
+    labels.appendChild(el('text',{
+      x:R-6,y:y(p)-8,'text-anchor':'end','font-size':'13','font-weight':'700',fill:'#c41230'
+    },'Price = MR'));
+
+    labels.appendChild(el('text',{
+      x:R-6,y:Math.max(T+16,y(mc(QMAX))-8),'text-anchor':'end','font-size':'13','font-weight':'700',fill:'#2f6f4e'
+    },'MC'));
+
+    labels.appendChild(el('text',{
+      x:R-6,y:y(ac(QMAX))-8,'text-anchor':'end','font-size':'13','font-weight':'700',fill:'#315f9f'
+    },'AC'));
+
+    labels.appendChild(el('text',{
+      x:x(q),y:B+42,'text-anchor':'middle','font-size':'12','font-weight':'700',fill:'#8c0d22'
+    },'Q* ≈ '+q));
+
+    const gap=p-acq;
+    let outcome,detail;
+
+    if(Math.abs(gap)<0.18){
+      outcome='BREAK EVEN';
+      detail='Price is approximately equal to average cost at Q*. The firm covers all economic costs, including opportunity costs.';
+    } else if(gap>0){
+      outcome='PROFIT';
+      detail=`Price is ${money(gap)} above average cost at Q*. The firm earns an economic profit on each unit produced.`;
+    } else {
+      outcome='LOSS';
+      detail=`Price is ${money(Math.abs(gap))} below average cost at Q*. The firm incurs an economic loss on each unit produced.`;
+    }
+
+    $('#metrics').innerHTML=
+      `<div class="metric"><div class="small muted">Price / MR</div><div class="big">${money(p)}</div></div>
+       <div class="metric"><div class="small muted">Q*</div><div class="big">${q} units</div></div>
+       <div class="metric"><div class="small muted">Average cost at Q*</div><div class="big">${money(acq)}</div></div>
+       <div class="metric"><div class="small muted">Outcome</div><div class="big">${outcome}</div></div>`;
+
+    $('#status').innerHTML=`<strong>${outcome}:</strong> ${detail}`;
+
+    svg.setAttribute(
+      'aria-label',
+      `Price is ${money(p)}. Profit maximizing output is approximately ${q} units. Average cost at that quantity is ${money(acq)}. The firm is in a ${outcome.toLowerCase()} position.`
+    );
+
+    price.setAttribute(
+      'aria-valuetext',
+      `Market price ${money(p)}. Current outcome ${outcome.toLowerCase()}.`
+    );
+
+    costShift.setAttribute(
+      'aria-valuetext',
+      shift===0
+        ? 'Production costs normal'
+        : `Production costs shifted ${shift>0?'up':'down'} by ${money(Math.abs(shift))}. Current outcome ${outcome.toLowerCase()}.`
+    );
+  }
+
+  [price,costShift].forEach(i=>i.addEventListener('input',render));
+
+  $$('.caseBtn').forEach(btn=>btn.addEventListener('click',()=>{
+    costShift.value=0;
+    if(btn.dataset.case==='profit')price.value=7;
+    if(btn.dataset.case==='break')price.value=3.5;
+    if(btn.dataset.case==='loss')price.value=2.5;
+    render();
+  }));
+
+  $('#resetBtn').addEventListener('click',()=>{
+    price.value=7;
+    costShift.value=0;
+    render();
+  });
+
+  render();
+})();
+</script>
+</body>
+</html>
