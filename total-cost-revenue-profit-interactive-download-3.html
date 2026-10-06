@@ -1796,14 +1796,14 @@ html&gt;body{padding:0}&lt;/style&gt;
     &lt;nav aria-label=&quot;Graph elements&quot;&gt;
       &lt;h2&gt;Explore the graph&lt;/h2&gt;
       &lt;ul&gt;
-        &lt;li&gt;&lt;button class=&quot;btn btn-ghost btn-block graph-choice&quot; type=&quot;button&quot; data-target=&quot;revenue&quot; aria-pressed=&quot;false&quot;&gt;Total revenue&lt;/button&gt;&lt;/li&gt;
-        &lt;li&gt;&lt;button class=&quot;btn btn-ghost btn-block graph-choice&quot; type=&quot;button&quot; data-target=&quot;cost&quot; aria-pressed=&quot;false&quot;&gt;Total cost&lt;/button&gt;&lt;/li&gt;
-        &lt;li&gt;&lt;button class=&quot;btn btn-ghost btn-block graph-choice&quot; type=&quot;button&quot; data-target=&quot;profit-curve&quot; aria-pressed=&quot;false&quot;&gt;Profit curve&lt;/button&gt;&lt;/li&gt;
-        &lt;li&gt;&lt;button class=&quot;btn btn-ghost btn-block graph-choice&quot; type=&quot;button&quot; data-target=&quot;loss-low&quot; aria-pressed=&quot;false&quot;&gt;Loss at low output&lt;/button&gt;&lt;/li&gt;
-        &lt;li&gt;&lt;button class=&quot;btn btn-ghost btn-block graph-choice&quot; type=&quot;button&quot; data-target=&quot;profit-range&quot; aria-pressed=&quot;false&quot;&gt;Profit range&lt;/button&gt;&lt;/li&gt;
-        &lt;li&gt;&lt;button class=&quot;btn btn-ghost btn-block graph-choice&quot; type=&quot;button&quot; data-target=&quot;loss-high&quot; aria-pressed=&quot;false&quot;&gt;Loss at high output&lt;/button&gt;&lt;/li&gt;
-        &lt;li&gt;&lt;button class=&quot;btn btn-ghost btn-block graph-choice&quot; type=&quot;button&quot; data-target=&quot;break-even-low&quot; aria-pressed=&quot;false&quot;&gt;Break-even near 30 packs&lt;/button&gt;&lt;/li&gt;
-        &lt;li&gt;&lt;button class=&quot;btn btn-ghost btn-block graph-choice&quot; type=&quot;button&quot; data-target=&quot;break-even-high&quot; aria-pressed=&quot;false&quot;&gt;Break-even near 100 packs&lt;/button&gt;&lt;/li&gt;
+        &lt;li&gt;&lt;button class=&quot;btn btn-block graph-choice&quot; type=&quot;button&quot; data-target=&quot;revenue&quot; aria-pressed=&quot;false&quot;&gt;Total revenue&lt;/button&gt;&lt;/li&gt;
+        &lt;li&gt;&lt;button class=&quot;btn btn-block graph-choice&quot; type=&quot;button&quot; data-target=&quot;cost&quot; aria-pressed=&quot;false&quot;&gt;Total cost&lt;/button&gt;&lt;/li&gt;
+        &lt;li&gt;&lt;button class=&quot;btn btn-block graph-choice&quot; type=&quot;button&quot; data-target=&quot;profit-curve&quot; aria-pressed=&quot;false&quot;&gt;Profit curve&lt;/button&gt;&lt;/li&gt;
+        &lt;li&gt;&lt;button class=&quot;btn btn-block graph-choice&quot; type=&quot;button&quot; data-target=&quot;loss-low&quot; aria-pressed=&quot;false&quot;&gt;Loss at low output&lt;/button&gt;&lt;/li&gt;
+        &lt;li&gt;&lt;button class=&quot;btn btn-block graph-choice&quot; type=&quot;button&quot; data-target=&quot;profit-range&quot; aria-pressed=&quot;false&quot;&gt;Profit range&lt;/button&gt;&lt;/li&gt;
+        &lt;li&gt;&lt;button class=&quot;btn btn-block graph-choice&quot; type=&quot;button&quot; data-target=&quot;loss-high&quot; aria-pressed=&quot;false&quot;&gt;Loss at high output&lt;/button&gt;&lt;/li&gt;
+        &lt;li&gt;&lt;button class=&quot;btn btn-block graph-choice&quot; type=&quot;button&quot; data-target=&quot;break-even-low&quot; aria-pressed=&quot;false&quot;&gt;Break-even near 30 packs&lt;/button&gt;&lt;/li&gt;
+        &lt;li&gt;&lt;button class=&quot;btn btn-block graph-choice&quot; type=&quot;button&quot; data-target=&quot;break-even-high&quot; aria-pressed=&quot;false&quot;&gt;Break-even near 100 packs&lt;/button&gt;&lt;/li&gt;
       &lt;/ul&gt;
     &lt;/nav&gt;
     &lt;figure&gt;
@@ -1818,28 +1818,24 @@ html&gt;body{padding:0}&lt;/style&gt;
           &lt;text x=&quot;50&quot; y=&quot;427&quot;&gt;0&lt;/text&gt;&lt;text x=&quot;42&quot; y=&quot;334&quot;&gt;200&lt;/text&gt;&lt;text x=&quot;42&quot; y=&quot;241&quot;&gt;400&lt;/text&gt;&lt;text x=&quot;42&quot; y=&quot;148&quot;&gt;600&lt;/text&gt;&lt;text x=&quot;42&quot; y=&quot;55&quot;&gt;800&lt;/text&gt;
           &lt;text x=&quot;88&quot; y=&quot;494&quot;&gt;0&lt;/text&gt;&lt;text x=&quot;170&quot; y=&quot;494&quot;&gt;20&lt;/text&gt;&lt;text x=&quot;257&quot; y=&quot;494&quot;&gt;40&lt;/text&gt;&lt;text x=&quot;344&quot; y=&quot;494&quot;&gt;60&lt;/text&gt;&lt;text x=&quot;431&quot; y=&quot;494&quot;&gt;80&lt;/text&gt;&lt;text x=&quot;514&quot; y=&quot;494&quot;&gt;100&lt;/text&gt;&lt;text x=&quot;602&quot; y=&quot;494&quot;&gt;120&lt;/text&gt;&lt;text x=&quot;690&quot; y=&quot;494&quot;&gt;140&lt;/text&gt;
         &lt;/g&gt;
-        &lt;g stroke=&quot;currentColor&quot; stroke-width=&quot;1&quot; opacity=&quot;.2&quot;&gt;
-          &lt;path d=&quot;M92 329H702M92 236H702M92 143H702M92 50H702&quot;/&gt;
-          &lt;path d=&quot;M179 36V422M266 36V422M353 36V422M440 36V422M527 36V422M614 36V422&quot;/&gt;
-        &lt;/g&gt;
         &lt;g clip-path=&quot;url(#plot-clip)&quot;&gt;
-          &lt;rect class=&quot;region-fill&quot; data-graph-target=&quot;loss-low&quot; x=&quot;92&quot; y=&quot;36&quot; width=&quot;131&quot; height=&quot;386&quot; fill=&quot;var(--viz-series-2)&quot; opacity=&quot;.08&quot;/&gt;
-          &lt;rect class=&quot;region-fill&quot; data-graph-target=&quot;profit-range&quot; x=&quot;223&quot; y=&quot;36&quot; width=&quot;305&quot; height=&quot;386&quot; fill=&quot;var(--viz-series-1)&quot; opacity=&quot;.08&quot;/&gt;
-          &lt;rect class=&quot;region-fill&quot; data-graph-target=&quot;loss-high&quot; x=&quot;528&quot; y=&quot;36&quot; width=&quot;174&quot; height=&quot;386&quot; fill=&quot;var(--viz-series-2)&quot; opacity=&quot;.08&quot;/&gt;
-          &lt;path d=&quot;M223 36V422M528 36V422&quot; stroke=&quot;currentColor&quot; stroke-dasharray=&quot;6 6&quot; stroke-width=&quot;1.5&quot; opacity=&quot;.65&quot;/&gt;
-          &lt;path data-graph-target=&quot;revenue&quot; d=&quot;M92 422L615 198&quot; fill=&quot;none&quot; stroke=&quot;var(--viz-series-1)&quot; stroke-width=&quot;3&quot; stroke-dasharray=&quot;9 5&quot;/&gt;
-          &lt;path data-graph-target=&quot;cost&quot; d=&quot;M92 389C145 378 182 362 223 361C270 360 301 349 353 343C413 335 474 297 528 231C583 165 647 97 702 41&quot; fill=&quot;none&quot; stroke=&quot;var(--viz-series-2)&quot; stroke-width=&quot;3.5&quot;/&gt;
-          &lt;path data-graph-target=&quot;profit-curve&quot; d=&quot;M92 454C145 438 184 421 223 422C267 403 307 386 353 387C416 390 478 406 528 422C590 441 645 479 702 507&quot; fill=&quot;none&quot; stroke=&quot;var(--viz-series-3)&quot; stroke-width=&quot;3.5&quot; stroke-dasharray=&quot;3 5&quot;/&gt;
-          &lt;circle data-graph-target=&quot;break-even-low&quot; cx=&quot;223&quot; cy=&quot;361&quot; r=&quot;7&quot; fill=&quot;var(--background)&quot; stroke=&quot;currentColor&quot; stroke-width=&quot;2&quot;/&gt;
-          &lt;circle data-graph-target=&quot;break-even-high&quot; cx=&quot;528&quot; cy=&quot;231&quot; r=&quot;7&quot; fill=&quot;var(--background)&quot; stroke=&quot;currentColor&quot; stroke-width=&quot;2&quot;/&gt;
-          &lt;circle data-graph-target=&quot;profit-curve&quot; cx=&quot;353&quot; cy=&quot;387&quot; r=&quot;5&quot; fill=&quot;var(--background)&quot; stroke=&quot;currentColor&quot; stroke-width=&quot;2&quot;/&gt;
+          &lt;rect class=&quot;region-fill&quot; data-graph-target=&quot;loss-low&quot; x=&quot;92&quot; y=&quot;36&quot; width=&quot;131&quot; height=&quot;386&quot; fill=&quot;none&quot;/&gt;
+          &lt;rect class=&quot;region-fill&quot; data-graph-target=&quot;profit-range&quot; x=&quot;223&quot; y=&quot;36&quot; width=&quot;305&quot; height=&quot;386&quot; fill=&quot;none&quot;/&gt;
+          &lt;rect class=&quot;region-fill&quot; data-graph-target=&quot;loss-high&quot; x=&quot;528&quot; y=&quot;36&quot; width=&quot;174&quot; height=&quot;386&quot; fill=&quot;none&quot;/&gt;
+          &lt;path d=&quot;M223 36V422M528 36V422&quot; stroke=&quot;var(--miami-gray)&quot; stroke-dasharray=&quot;6 6&quot; stroke-width=&quot;1.5&quot;/&gt;
+          &lt;path class=&quot;graph-line&quot; data-graph-target=&quot;revenue&quot; d=&quot;M92 422L615 198&quot; fill=&quot;none&quot; stroke=&quot;var(--miami-red)&quot; stroke-width=&quot;3&quot; stroke-dasharray=&quot;9 5&quot;/&gt;
+          &lt;path class=&quot;graph-line&quot; data-graph-target=&quot;cost&quot; d=&quot;M92 389C145 378 182 362 223 361C270 360 301 349 353 343C413 335 474 297 528 231C583 165 647 97 702 41&quot; fill=&quot;none&quot; stroke=&quot;var(--foreground)&quot; stroke-width=&quot;3.5&quot;/&gt;
+          &lt;path class=&quot;graph-line&quot; data-graph-target=&quot;profit-curve&quot; d=&quot;M92 454C145 438 184 421 223 422C267 403 307 386 353 387C416 390 478 406 528 422C590 441 645 479 702 507&quot; fill=&quot;none&quot; stroke=&quot;var(--miami-gray)&quot; stroke-width=&quot;3.5&quot; stroke-dasharray=&quot;3 5&quot;/&gt;
+          &lt;circle class=&quot;marker&quot; data-graph-target=&quot;break-even-low&quot; cx=&quot;223&quot; cy=&quot;361&quot; r=&quot;7&quot; fill=&quot;var(--background)&quot; stroke=&quot;currentColor&quot; stroke-width=&quot;2&quot;/&gt;
+          &lt;circle class=&quot;marker&quot; data-graph-target=&quot;break-even-high&quot; cx=&quot;528&quot; cy=&quot;231&quot; r=&quot;7&quot; fill=&quot;var(--background)&quot; stroke=&quot;currentColor&quot; stroke-width=&quot;2&quot;/&gt;
+          &lt;circle class=&quot;marker&quot; data-graph-target=&quot;profit-curve&quot; cx=&quot;353&quot; cy=&quot;387&quot; r=&quot;5&quot; fill=&quot;var(--background)&quot; stroke=&quot;currentColor&quot; stroke-width=&quot;2&quot;/&gt;
           &lt;g class=&quot;graph-hotspots cursor-interaction&quot;&gt;
             &lt;rect data-graph-target=&quot;loss-low&quot; x=&quot;94&quot; y=&quot;95&quot; width=&quot;126&quot; height=&quot;250&quot; fill=&quot;transparent&quot;/&gt;
             &lt;rect data-graph-target=&quot;profit-range&quot; x=&quot;229&quot; y=&quot;95&quot; width=&quot;292&quot; height=&quot;245&quot; fill=&quot;transparent&quot;/&gt;
             &lt;rect data-graph-target=&quot;loss-high&quot; x=&quot;534&quot; y=&quot;95&quot; width=&quot;155&quot; height=&quot;245&quot; fill=&quot;transparent&quot;/&gt;
-            &lt;path data-graph-target=&quot;revenue&quot; d=&quot;M92 422L615 198&quot; fill=&quot;none&quot; stroke=&quot;transparent&quot; stroke-width=&quot;28&quot;/&gt;
-            &lt;path data-graph-target=&quot;cost&quot; d=&quot;M92 389C145 378 182 362 223 361C270 360 301 349 353 343C413 335 474 297 528 231C583 165 647 97 702 41&quot; fill=&quot;none&quot; stroke=&quot;transparent&quot; stroke-width=&quot;28&quot;/&gt;
-            &lt;path data-graph-target=&quot;profit-curve&quot; d=&quot;M92 454C145 438 184 421 223 422C267 403 307 386 353 387C416 390 478 406 528 422C590 441 645 479 702 507&quot; fill=&quot;none&quot; stroke=&quot;transparent&quot; stroke-width=&quot;28&quot;/&gt;
+            &lt;path class=&quot;curve-hit&quot; data-graph-target=&quot;revenue&quot; d=&quot;M92 422L615 198&quot; fill=&quot;none&quot; stroke=&quot;transparent&quot; stroke-width=&quot;28&quot;/&gt;
+            &lt;path class=&quot;curve-hit&quot; data-graph-target=&quot;cost&quot; d=&quot;M92 389C145 378 182 362 223 361C270 360 301 349 353 343C413 335 474 297 528 231C583 165 647 97 702 41&quot; fill=&quot;none&quot; stroke=&quot;transparent&quot; stroke-width=&quot;28&quot;/&gt;
+            &lt;path class=&quot;curve-hit&quot; data-graph-target=&quot;profit-curve&quot; d=&quot;M92 454C145 438 184 421 223 422C267 403 307 386 353 387C416 390 478 406 528 422C590 441 645 479 702 507&quot; fill=&quot;none&quot; stroke=&quot;transparent&quot; stroke-width=&quot;28&quot;/&gt;
             &lt;circle data-graph-target=&quot;break-even-low&quot; cx=&quot;223&quot; cy=&quot;361&quot; r=&quot;18&quot; fill=&quot;transparent&quot;/&gt;
             &lt;circle data-graph-target=&quot;break-even-high&quot; cx=&quot;528&quot; cy=&quot;231&quot; r=&quot;18&quot; fill=&quot;transparent&quot;/&gt;
           &lt;/g&gt;
@@ -1854,7 +1850,11 @@ html&gt;body{padding:0}&lt;/style&gt;
       &lt;figcaption&gt;Dashed vertical guides mark the two break-even quantities.&lt;/figcaption&gt;
     &lt;/figure&gt;
   &lt;/div&gt;
-  &lt;h2 id=&quot;graph-description&quot; class=&quot;text-center&quot; role=&quot;status&quot; aria-live=&quot;polite&quot;&gt;&lt;strong&gt;Choose an item to read its description and highlight it on the graph.&lt;/strong&gt;&lt;/h2&gt;
+  &lt;div class=&quot;card&quot;&gt;
+    &lt;div class=&quot;graph-description-slot&quot;&gt;
+      &lt;h2 id=&quot;graph-description&quot; class=&quot;text-center&quot; role=&quot;status&quot; aria-live=&quot;polite&quot;&gt;&lt;strong&gt;Choose an item to read its description and highlight it on the graph.&lt;/strong&gt;&lt;/h2&gt;
+    &lt;/div&gt;
+  &lt;/div&gt;
   &lt;script&gt;
     (() =&gt; {
       const root = document.getElementById(&#x27;total-cost-revenue-interactive&#x27;);
@@ -1882,7 +1882,12 @@ html&gt;body{padding:0}&lt;/style&gt;
         selectedTarget = target;
         showDescription(target);
         choices.forEach((choice) =&gt; choice.setAttribute(&#x27;aria-pressed&#x27;, String(choice.dataset.target === target)));
-        targets.forEach((mark) =&gt; mark.classList.toggle(&#x27;is-selected&#x27;, mark.dataset.graphTarget === target));
+        root.classList.add(&#x27;has-selection&#x27;);
+        targets.forEach((mark) =&gt; {
+          const active = mark.dataset.graphTarget === target;
+          mark.classList.toggle(&#x27;is-selected&#x27;, active);
+          mark.classList.toggle(&#x27;is-dimmed&#x27;, !active);
+        });
       }
       choices.forEach((choice) =&gt; choice.addEventListener(&#x27;click&#x27;, () =&gt; select(choice.dataset.target)));
       targets.forEach((mark) =&gt; {
@@ -1904,26 +1909,42 @@ html&gt;body{padding:0}&lt;/style&gt;
     })();
   &lt;/script&gt;
   &lt;style&gt;
-    #total-cost-revenue-interactive { color: var(--foreground); }
+    #total-cost-revenue-interactive {
+      --miami-red:#C41230;
+      --miami-gray:#595959;
+      --background:#FFFFFF;
+      --foreground:#000000;
+      --card:#FFFFFF;
+      --card-foreground:#000000;
+      --primary:#C41230;
+      --primary-foreground:#FFFFFF;
+      --viz-series-1:#C41230;
+      --viz-series-2:#000000;
+      --viz-series-3:#595959;
+      color:var(--foreground);
+      background-color:var(--background);
+    }
+    #total-cost-revenue-interactive h1 { color:var(--miami-red); }
     #total-cost-revenue-interactive .graph-layout { display:grid;grid-template-columns:minmax(180px, 220px) minmax(0, 1fr);gap:20px;align-items:start; }
     #total-cost-revenue-interactive nav ul { list-style:none;padding:0;margin:0; }
     #total-cost-revenue-interactive nav li { margin-bottom:4px; }
     #total-cost-revenue-interactive figure { margin:0;min-width:0; }
     #total-cost-revenue-interactive figcaption { text-align:center; }
-    #total-cost-revenue-interactive [data-graph-target] { transition:opacity .12s ease,stroke-width .12s ease; }
-    #total-cost-revenue-interactive path[data-graph-target].is-selected { opacity:1 !important;stroke-width:5 !important; }
-    #total-cost-revenue-interactive circle[data-graph-target].is-selected { opacity:1 !important;stroke-width:4 !important; }
-    #total-cost-revenue-interactive rect.region-fill.is-selected { opacity:.24 !important;stroke:currentColor;stroke-width:2; }
+    #total-cost-revenue-interactive .graph-line.is-dimmed { stroke:var(--miami-gray) !important; }
+    #total-cost-revenue-interactive .graph-line.is-selected { stroke:var(--miami-red) !important;stroke-width:7 !important; }
+    #total-cost-revenue-interactive circle.marker.is-dimmed { stroke:var(--miami-gray) !important; }
+    #total-cost-revenue-interactive circle.marker.is-selected { stroke:var(--miami-red) !important;stroke-width:4.5 !important; }
+    #total-cost-revenue-interactive rect.region-fill.is-selected { stroke:var(--miami-red);stroke-width:5;fill:none; }
     #total-cost-revenue-interactive .graph-hotspots [data-graph-target] { pointer-events:all; }
     #total-cost-revenue-interactive .graph-hotspots { opacity:0; }
-    #total-cost-revenue-interactive #graph-description { margin-block:1rem; }
+    #total-cost-revenue-interactive &gt; .card { margin-block:1rem; }
+    #total-cost-revenue-interactive .graph-description-slot { min-height:5.5em;display:flex;align-items:center;justify-content:center; }
+    #total-cost-revenue-interactive #graph-description { margin-block:0; }
     @media (max-width:760px) {
       #total-cost-revenue-interactive .graph-layout { grid-template-columns:1fr; }
       #total-cost-revenue-interactive nav { display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:4px; }
       #total-cost-revenue-interactive nav h2 { grid-column:1/-1; }
-    }
-    @media (prefers-reduced-motion: reduce) {
-      #total-cost-revenue-interactive [data-graph-target] { transition:none; }
+      #total-cost-revenue-interactive .graph-description-slot { min-height:8em; }
     }
   &lt;/style&gt;
 &lt;/div&gt;
