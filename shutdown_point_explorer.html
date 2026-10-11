@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Shutdown Point Explorer</title>
+  <style>
+    :root{--miami:#c41230;--miami-dark:#8c0d22;--blue:#315f9f;--green:#2f6f4e;--purple:#6b4fa3;--ink:#202124;--muted:#5f6368;--panel:#f7f7f8;--card:#fff;--border:#d9dde3}
+    body{font-family:Arial,Helvetica,sans-serif;margin:0;padding:24px;background:#fff;color:var(--ink)}
+    #shutdownLab{max-width:1180px;margin:0 auto}
+    .layout{display:grid;grid-template-columns:minmax(0,1.7fr) minmax(260px,.8fr);gap:16px}
+    .card{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:16px}
+    .control{display:grid;grid-template-columns:minmax(150px,1fr) 2fr 78px;gap:12px;align-items:center;margin:14px 0}
+    input[type=range]{width:100%;accent-color:var(--miami)}
+    button{min-height:44px;border:1px solid var(--border);border-radius:10px;background:var(--card);padding:9px 13px;font-weight:700;cursor:pointer}
+    button:hover{background:#fff3f5}
+    button:focus-visible,input:focus-visible{outline:3px solid var(--miami);outline-offset:2px}
+    .graphWrap{overflow-x:auto}
+    svg{display:block;width:100%;min-width:560px;height:auto}
+    .gridline{stroke:var(--border);stroke-width:1}
+    .axis{stroke:var(--muted);stroke-width:1.3}
+    .atc{fill:none;stroke:var(--blue);stroke-width:3}
+    .avc{fill:none;stroke:var(--purple);stroke-width:3;stroke-dasharray:9 5}
+    .mc{fill:none;stroke:var(--green);stroke-width:3;stroke-dasharray:3 4}
+    .mr{fill:none;stroke:var(--miami);stroke-width:3;stroke-dasharray:12 5}
+    .guide{stroke:var(--miami-dark);stroke-width:1.4;stroke-dasharray:4 4}
+    .dot{fill:var(--miami);stroke:#fff;stroke-width:2}
+    .metrics{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}
+    .metric{border-top:4px solid var(--miami);padding-top:8px}
+    .big{font-size:1.22rem;font-weight:800}
+    .small{font-size:.9rem}
+    .muted{color:var(--muted)}
+    .decision{padding:14px;border-radius:10px;border-left:5px solid var(--miami);background:#fff5f6}
+    .legend{display:flex;flex-wrap:wrap;gap:16px;font-size:.9rem;margin-top:8px}
+    .swatch{display:inline-block;width:28px;vertical-align:middle;margin-right:6px}
+    .atcS{border-top:3px solid var(--blue)}
+    .avcS{border-top:3px dashed var(--purple)}
+    .mcS{border-top:3px dotted var(--green)}
+    .mrS{border-top:3px dashed var(--miami)}
+    .rule{background:var(--panel);padding:12px;border-radius:9px}
+    .toprow{display:flex;flex-wrap:wrap;justify-content:space-between;align-items:flex-start;gap:12px}
+    .row{display:flex;flex-wrap:wrap;gap:8px}
+    .mt{margin-top:16px}
+    .rulegrid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+    @media(max-width:700px){.layout,.rulegrid{grid-template-columns:1fr}.control{grid-template-columns:1fr}.metrics{grid-template-columns:1fr 1fr}}
+    @media(max-width:450px){.metrics{grid-template-columns:1fr}}
+  </style>
+</head>
+<body>
+<div id="shutdownLab">
+  <div class="layout">
+    <section class="card">
+      <div class="toprow">
+        <div>
+          <h2>Should the firm produce or shut down?</h2>
+          <p class="small muted">In the short run, a firm may keep operating at a loss if price still covers average variable cost.</p>
+        </div>
+        <button type="button" id="resetBtn">Reset</button>
+      </div>
+
+      <div class="graphWrap mt">
+        <svg id="chart" viewBox="0 0 720 435" role="img" aria-labelledby="chartTitle chartDesc">
+          <title id="chartTitle">Shutdown point graph with average total cost, average variable cost, marginal cost, and marginal revenue</title>
+          <desc id="chartDesc">Price equals marginal revenue. The profit maximizing quantity is where marginal revenue intersects marginal cost. If price is above average variable cost at that output, the firm operates in the short run. If price is below average variable cost, the firm shuts down.</desc>
+          <g id="grid"></g><g id="axes"></g>
+          <path id="atcPath" class="atc"></path>
+          <path id="avcPath" class="avc"></path>
+          <path id="mcPath" class="mc"></path>
+          <path id="mrPath" class="mr"></path>
+          <g id="marks"></g><g id="labels"></g>
+        </svg>
+      </div>
+
+      <div class="legend" aria-label="Graph legend">
+        <span><span class="swatch atcS" aria-hidden="true"></span><strong>ATC</strong> — solid</span>
+        <span><span class="swatch avcS" aria-hidden="true"></span><strong>AVC</strong> — dashed</span>
+        <span><span class="swatch mcS" aria-hidden="true"></span><strong>MC</strong> — dotted</span>
+        <span><span class="swatch mrS" aria-hidden="true"></span><strong>Price = MR</strong> — long dashed</span>
+      </div>
+
+      <div class="metrics mt" id="metrics" aria-live="polite"></div>
+      <div class="decision mt" id="decision" aria-live="polite"></div>
+    </section>
+
+    <aside class="card">
+      <h2>Change the firm's situation</h2>
+      <p class="small muted">Try changing price and variable costs separately.</p>
+
+      <div class="control">
+        <label for="price"><strong>Market price</strong><br><span class="small muted">Also equals MR</span></label>
+        <input id="price" type="range" min="1" max="9" step="0.25" value="4">
+        <output id="priceOut" for="price">$4.00</output>
+      </div>
+
+      <div class="control">
+        <label for="variableCost"><strong>Variable costs</strong><br><span class="small muted">Moves AVC and MC</span></label>
+        <input id="variableCost" type="range" min="-1.5" max="3" step="0.25" value="0">
+        <output id="variableOut" for="variableCost">Normal</output>
+      </div>
+
+      <div class="mt">
+        <h3>Try the key cases</h3>
+        <div class="row">
+          <button type="button" class="caseBtn" data-case="profit">Profit</button>
+          <button type="button" class="caseBtn" data-case="lossOperate">Loss, keep operating</button>
+          <button type="button" class="caseBtn" data-case="shutdown">Shut down</button>
+        </div>
+      </div>
+
+      <div class="rule mt small">
+        <h3>Short-run shutdown rule</h3>
+        <p><strong>Price ≥ AVC at Q*:</strong> operate.</p>
+        <p><strong>Price &lt; AVC at Q*:</strong> shut down.</p>
+        <p class="muted">ATC determines profit or loss. AVC determines whether the firm should continue producing in the short run.</p>
+      </div>
+    </aside>
+  </div>
+
+  <section class="card mt">
+    <h2>Why would a firm operate while losing money?</h2>
+    <p>Fixed costs must be paid in the short run whether the firm produces or not. If price covers <strong>all variable costs</strong> and contributes something toward fixed costs, producing reduces the firm's loss compared with shutting down immediately.</p>
+    <div class="rulegrid small mt">
+      <div><strong>Price &gt; ATC</strong><br>The firm earns an economic profit.</div>
+      <div><strong>AVC ≤ Price &lt; ATC</strong><br>The firm has a loss, but continues operating in the short run.</div>
+      <div><strong>Price &lt; AVC</strong><br>Revenue cannot cover variable costs, so the firm shuts down.</div>
+    </div>
+  </section>
+</div>
+
+<script>
+(()=>{
+  const root=document.getElementById('shutdownLab');
+  const $=s=>root.querySelector(s), $$=s=>[...root.querySelectorAll(s)];
+  const price=$('#price'),vShift=$('#variableCost'),grid=$('#grid'),axes=$('#axes'),marks=$('#marks'),labels=$('#labels');
+  const atcPath=$('#atcPath'),avcPath=$('#avcPath'),mcPath=$('#mcPath'),mrPath=$('#mrPath'),svg=$('#chart');
+  const L=66,R=688,T=24,B=362,W=R-L,H=B-T,QMAX=110,YMAX=12;
+  const x=q=>L+(q/QMAX)*W,y=v=>B-(v/YMAX)*H,money=v=>'$'+v.toFixed(2);
+
+  function avc(q){return 1.65+0.00072*Math.pow(q-45,2)+(+vShift.value);}
+  function atc(q){return avc(q)+75/Math.max(q,8);}
+  function mc(q){return Math.max(.45,1.25+0.00215*Math.pow(q-38,2)+(+vShift.value));}
+  function qStar(){const p=+price.value;let best=0,diff=Infinity;for(let q=1;q<=QMAX;q++){const d=Math.abs(mc(q)-p);if(d<diff){diff=d;best=q;}}return best;}
+  function el(tag,a={},txt=''){const n=document.createElementNS('http://www.w3.org/2000/svg',tag);Object.entries(a).forEach(([k,v])=>n.setAttribute(k,v));if(txt)n.textContent=txt;return n;}
+  function curve(fn){let d='';for(let q=8;q<=QMAX;q+=2)d+=(q===8?'M':'L')+x(q).toFixed(1)+','+y(fn(q)).toFixed(1);return d;}
+
+  function render(){
+    const p=+price.value,shift=+vShift.value,q=qStar(),a=atc(q),v=avc(q),m=mc(q);
+    $('#priceOut').textContent=money(p);
+    $('#variableOut').textContent=shift===0?'Normal':shift>0?'+'+money(shift):'−'+money(Math.abs(shift));
+    grid.innerHTML='';axes.innerHTML='';marks.innerHTML='';labels.innerHTML='';
+
+    [0,2,4,6,8,10,12].forEach(val=>{
+      const yy=y(val);
+      grid.appendChild(el('line',{x1:L,y1:yy,x2:R,y2:yy,class:'gridline'}));
+      labels.appendChild(el('text',{x:L-8,y:yy+4,'text-anchor':'end','font-size':'12',fill:'#5f6368'},'$'+val));
+    });
+
+    [0,20,40,60,80,100].forEach(val=>{
+      const xx=x(val);
+      grid.appendChild(el('line',{x1:xx,y1:T,x2:xx,y2:B,class:'gridline'}));
+      labels.appendChild(el('text',{x:xx,y:B+22,'text-anchor':'middle','font-size':'12',fill:'#5f6368'},String(val)));
+    });
+
+    axes.appendChild(el('line',{x1:L,y1:B,x2:R,y2:B,class:'axis'}));
+    axes.appendChild(el('line',{x1:L,y1:T,x2:L,y2:B,class:'axis'}));
+    labels.appendChild(el('text',{x:(L+R)/2,y:412,'text-anchor':'middle','font-size':'14','font-weight':'700',fill:'#202124'},'Quantity'));
+    labels.appendChild(el('text',{x:18,y:(T+B)/2,transform:'rotate(-90 18 '+((T+B)/2)+')','text-anchor':'middle','font-size':'14','font-weight':'700',fill:'#202124'},'Cost / revenue per unit ($)'));
+
+    atcPath.setAttribute('d',curve(atc));
+    avcPath.setAttribute('d',curve(avc));
+    mcPath.setAttribute('d',curve(mc));
+    mrPath.setAttribute('d',`M${L},${y(p)} L${R},${y(p)}`);
+
+    marks.appendChild(el('line',{x1:x(q),y1:y(p),x2:x(q),y2:B,class:'guide'}));
+    marks.appendChild(el('circle',{cx:x(q),cy:y(m),r:7,class:'dot'}));
+    marks.appendChild(el('circle',{cx:x(q),cy:y(v),r:5,fill:'#6b4fa3',stroke:'#fff','stroke-width':2}));
+    marks.appendChild(el('circle',{cx:x(q),cy:y(a),r:5,fill:'#315f9f',stroke:'#fff','stroke-width':2}));
+
+    labels.appendChild(el('text',{x:R-6,y:y(p)-8,'text-anchor':'end','font-size':'13','font-weight':'700',fill:'#c41230'},'Price = MR'));
+    labels.appendChild(el('text',{x:R-6,y:Math.max(T+16,y(mc(QMAX))-8),'text-anchor':'end','font-size':'13','font-weight':'700',fill:'#2f6f4e'},'MC'));
+    labels.appendChild(el('text',{x:R-6,y:y(atc(QMAX))-9,'text-anchor':'end','font-size':'13','font-weight':'700',fill:'#315f9f'},'ATC'));
+    labels.appendChild(el('text',{x:R-6,y:y(avc(QMAX))+15,'text-anchor':'end','font-size':'13','font-weight':'700',fill:'#6b4fa3'},'AVC'));
+    labels.appendChild(el('text',{x:x(q),y:B+42,'text-anchor':'middle','font-size':'12','font-weight':'700',fill:'#8c0d22'},'Q* ≈ '+q));
+
+    let outcome,detail;
+    if(p>=a){
+      outcome='PRODUCE — PROFIT';
+      detail=`Price (${money(p)}) is above ATC (${money(a)}) at Q*. The firm covers variable and fixed costs and earns an economic profit.`;
+    }else if(p>=v){
+      outcome='PRODUCE — SHORT-RUN LOSS';
+      detail=`Price (${money(p)}) is below ATC (${money(a)}) but still above AVC (${money(v)}). The firm cannot cover all fixed costs, but operating covers variable costs and contributes toward fixed costs, so it should continue producing in the short run.`;
+    }else{
+      outcome='SHUT DOWN';
+      detail=`Price (${money(p)}) is below AVC (${money(v)}) at Q*. Revenue does not cover the variable cost of production, so producing would make the loss larger.`;
+    }
+
+    $('#metrics').innerHTML=
+      `<div class="metric"><div class="small muted">Price / MR</div><div class="big">${money(p)}</div></div>
+       <div class="metric"><div class="small muted">Q*</div><div class="big">${q} units</div></div>
+       <div class="metric"><div class="small muted">ATC at Q*</div><div class="big">${money(a)}</div></div>
+       <div class="metric"><div class="small muted">AVC at Q*</div><div class="big">${money(v)}</div></div>`;
+
+    $('#decision').innerHTML=`<strong>${outcome}</strong><br><span class="small">${detail}</span>`;
+    svg.setAttribute('aria-label',`Market price is ${money(p)}. Profit maximizing quantity is approximately ${q} units. Average total cost is ${money(a)} and average variable cost is ${money(v)}. Decision: ${outcome}.`);
+    price.setAttribute('aria-valuetext',`Market price ${money(p)}. Decision ${outcome}.`);
+    vShift.setAttribute('aria-valuetext',shift===0?`Variable costs normal. Decision ${outcome}.`:`Variable costs shifted ${shift>0?'up':'down'} by ${money(Math.abs(shift))}. Decision ${outcome}.`);
+  }
+
+  [price,vShift].forEach(i=>i.addEventListener('input',render));
+  $$('.caseBtn').forEach(btn=>btn.addEventListener('click',()=>{
+    vShift.value=0;
+    if(btn.dataset.case==='profit')price.value=6;
+    if(btn.dataset.case==='lossOperate')price.value=3;
+    if(btn.dataset.case==='shutdown')price.value=1.5;
+    render();
+  }));
+  $('#resetBtn').addEventListener('click',()=>{price.value=4;vShift.value=0;render();});
+  render();
+})();
+</script>
+</body>
+</html>
