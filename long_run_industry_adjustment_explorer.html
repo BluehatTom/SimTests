@@ -1,0 +1,441 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Long-Run Industry Adjustment Explorer</title>
+  <style>
+    :root{
+      --miami:#c41230;
+      --miami-dark:#8c0d22;
+      --blue:#315f9f;
+      --green:#2f6f4e;
+      --purple:#6b4fa3;
+      --orange:#9a6700;
+      --ink:#202124;
+      --muted:#5f6368;
+      --panel:#f7f7f8;
+      --card:#ffffff;
+      --border:#d9dde3;
+    }
+    body{
+      font-family:Arial,Helvetica,sans-serif;
+      margin:0;
+      padding:24px;
+      background:#fff;
+      color:var(--ink);
+    }
+    #lrsLab{max-width:1180px;margin:0 auto}
+    .layout{display:grid;grid-template-columns:minmax(0,1.7fr) minmax(270px,.8fr);gap:16px}
+    .card{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:16px}
+    button,select{min-height:44px;border:1px solid var(--border);border-radius:10px;background:var(--card);padding:9px 12px;font-weight:700}
+    button{cursor:pointer}
+    button:hover{background:#fff3f5}
+    button:focus-visible,select:focus-visible,input:focus-visible{outline:3px solid var(--miami);outline-offset:2px}
+    input[type=range]{width:100%;accent-color:var(--miami)}
+    .control{display:grid;grid-template-columns:minmax(150px,1fr) 2fr 76px;gap:12px;align-items:center;margin:14px 0}
+    .graphWrap{overflow-x:auto}
+    svg{display:block;width:100%;min-width:590px;height:auto}
+    .gridline{stroke:var(--border);stroke-width:1}
+    .axis{stroke:var(--muted);stroke-width:1.3}
+    .d1{fill:none;stroke:var(--blue);stroke-width:2.5}
+    .d2{fill:none;stroke:var(--blue);stroke-width:3;stroke-dasharray:8 5}
+    .s1{fill:none;stroke:var(--green);stroke-width:2.5}
+    .s2{fill:none;stroke:var(--green);stroke-width:3;stroke-dasharray:3 4}
+    .lrs{fill:none;stroke:var(--miami);stroke-width:4}
+    .guide{stroke:var(--muted);stroke-width:1.3;stroke-dasharray:4 4}
+    .eq1{fill:var(--blue);stroke:#fff;stroke-width:2}
+    .eq2{fill:var(--miami);stroke:#fff;stroke-width:2}
+    .srDot{fill:var(--orange);stroke:#fff;stroke-width:2}
+    .legend{display:flex;flex-wrap:wrap;gap:16px;font-size:.9rem;margin-top:8px}
+    .swatch{display:inline-block;width:28px;vertical-align:middle;margin-right:6px}
+    .d1s{border-top:3px solid var(--blue)}
+    .d2s{border-top:3px dashed var(--blue)}
+    .s1s{border-top:3px solid var(--green)}
+    .s2s{border-top:3px dotted var(--green)}
+    .lrss{border-top:4px solid var(--miami)}
+    .stepButtons{display:flex;flex-wrap:wrap;gap:8px}
+    .stepButtons button.active{background:#fff3f5;border-color:var(--miami);color:var(--miami-dark)}
+    .status{border-left:5px solid var(--miami);background:#fff5f6;padding:14px;border-radius:10px}
+    .metrics{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}
+    .metric{border-top:4px solid var(--miami);padding-top:8px}
+    .big{font-size:1.2rem;font-weight:800}
+    .small{font-size:.9rem}
+    .muted{color:var(--muted)}
+    .typeCard{padding:12px;border-radius:10px;background:var(--panel)}
+    .typeCard.current{outline:3px solid var(--miami);background:#fff5f6}
+    .toprow{display:flex;flex-wrap:wrap;justify-content:space-between;gap:12px;align-items:flex-start}
+    .mt{margin-top:16px}
+    .threecol{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
+    @media(max-width:720px){
+      .layout,.threecol{grid-template-columns:1fr}
+      .control{grid-template-columns:1fr}
+      .metrics{grid-template-columns:1fr 1fr}
+    }
+    @media(max-width:450px){.metrics{grid-template-columns:1fr}}
+  </style>
+</head>
+<body>
+<div id="lrsLab">
+  <div class="layout">
+    <section class="card">
+      <div class="toprow">
+        <div>
+          <h2>How does an industry adjust after demand increases?</h2>
+          <p class="small muted">Follow the market from its initial equilibrium, through the short run, to its new long-run equilibrium.</p>
+        </div>
+        <button type="button" id="resetBtn">Reset</button>
+      </div>
+
+      <div class="stepButtons mt" aria-label="Adjustment stage">
+        <button type="button" data-step="1" class="active">1. Initial equilibrium</button>
+        <button type="button" data-step="2">2. Demand increases</button>
+        <button type="button" data-step="3">3. Long-run adjustment</button>
+      </div>
+
+      <div class="graphWrap mt">
+        <svg id="chart" viewBox="0 0 740 455" role="img" aria-labelledby="chartTitle chartDesc">
+          <title id="chartTitle">Long-run industry adjustment graph</title>
+          <desc id="chartDesc">Demand shifts from D1 to D2. Supply begins at S1 and adjusts to S2. The long-run supply curve determines whether the final equilibrium price stays the same, rises, or falls as industry output expands.</desc>
+          <g id="grid"></g>
+          <g id="axes"></g>
+          <path id="d1Path" class="d1"></path>
+          <path id="d2Path" class="d2"></path>
+          <path id="s1Path" class="s1"></path>
+          <path id="s2Path" class="s2"></path>
+          <path id="lrsPath" class="lrs"></path>
+          <g id="marks"></g>
+          <g id="labels"></g>
+        </svg>
+      </div>
+
+      <div class="legend" aria-label="Graph legend">
+        <span><span class="swatch d1s" aria-hidden="true"></span><strong>D1</strong> initial demand</span>
+        <span><span class="swatch d2s" aria-hidden="true"></span><strong>D2</strong> higher demand</span>
+        <span><span class="swatch s1s" aria-hidden="true"></span><strong>S1</strong> initial supply</span>
+        <span><span class="swatch s2s" aria-hidden="true"></span><strong>S2</strong> long-run supply after entry/adjustment</span>
+        <span><span class="swatch lrss" aria-hidden="true"></span><strong>LRS</strong> long-run industry supply</span>
+      </div>
+
+      <div class="metrics mt" id="metrics" aria-live="polite"></div>
+      <div class="status mt" id="status" aria-live="polite"></div>
+    </section>
+
+    <aside class="card">
+      <h2>Choose the industry</h2>
+
+      <label for="industryType" class="small"><strong>Industry type</strong></label>
+      <select id="industryType" style="width:100%;margin-top:8px">
+        <option value="constant">Constant-cost industry</option>
+        <option value="increasing">Increasing-cost industry</option>
+        <option value="decreasing">Decreasing-cost industry</option>
+      </select>
+
+      <div class="control mt">
+        <label for="demandShift"><strong>Demand increase</strong><br><span class="small muted">Size of shift from D1 to D2</span></label>
+        <input id="demandShift" type="range" min="8" max="32" step="2" value="20">
+        <output id="shiftOut" for="demandShift">20</output>
+      </div>
+
+      <div style="display:grid;gap:12px;margin-top:20px" class="small">
+        <div class="typeCard" id="constantCard"><strong>Constant-cost</strong><br>Industry expansion does not change firms' input costs. Long-run price returns to its original level.</div>
+        <div class="typeCard" id="increasingCard"><strong>Increasing-cost</strong><br>Industry expansion raises input costs. The new long-run equilibrium has a higher price.</div>
+        <div class="typeCard" id="decreasingCard"><strong>Decreasing-cost</strong><br>Industry expansion lowers input costs. The new long-run equilibrium has a lower price.</div>
+      </div>
+    </aside>
+  </div>
+
+  <section class="card mt">
+    <h2>What changes in the long run?</h2>
+    <div class="threecol small mt">
+      <div><strong>Constant-cost industry</strong><br>More firms enter and industry supply expands enough to return price to the original level. Quantity increases.</div>
+      <div><strong>Increasing-cost industry</strong><br>Entry expands supply, but expanding the industry raises input costs. Long-run price ends higher than before.</div>
+      <div><strong>Decreasing-cost industry</strong><br>Industry growth creates lower input costs or external economies. Long-run price ends lower than before.</div>
+    </div>
+    <p class="small muted mt"><strong>Important:</strong> LRS describes the industry's long-run relationship between price and total industry output. It is not the supply curve of an individual firm.</p>
+  </section>
+</div>
+
+<script>
+(()=>{
+  const root=document.getElementById('lrsLab');
+  const $=s=>root.querySelector(s), $$=s=>[...root.querySelectorAll(s)];
+
+  const type=$('#industryType');
+  const shift=$('#demandShift');
+  const grid=$('#grid');
+  const axes=$('#axes');
+  const marks=$('#marks');
+  const labels=$('#labels');
+  const d1Path=$('#d1Path');
+  const d2Path=$('#d2Path');
+  const s1Path=$('#s1Path');
+  const s2Path=$('#s2Path');
+  const lrsPath=$('#lrsPath');
+  const svg=$('#chart');
+
+  const L=70,R=700,T=25,B=370,W=R-L,H=B-T,QMAX=120,PMAX=12;
+  const x=q=>L+(q/QMAX)*W;
+  const y=p=>B-(p/PMAX)*H;
+  const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
+
+  let step=1;
+
+  // Initial market:
+  // D1: P = 10 - 0.08Q
+  // S1: P = 2 + 0.08Q
+  // Initial equilibrium: Q1 = 50, P1 = 6
+  const demandSlope=.08;
+  const supplySlope=.08;
+  const P1=6;
+  const Q1=50;
+
+  function d1(q){
+    return 10-demandSlope*q;
+  }
+
+  function d2(q){
+    return 10+(+shift.value)*demandSlope-demandSlope*q;
+  }
+
+  function s1(q){
+    return 2+supplySlope*q;
+  }
+
+  function lrsSlope(){
+    if(type.value==='constant') return 0;
+    if(type.value==='increasing') return .035;
+    return -.025;
+  }
+
+  function lrs(q){
+    return P1+lrsSlope()*(q-Q1);
+  }
+
+  function intersectionDemandWith(fn){
+    let best={q:0,p:0,d:Infinity};
+    for(let q=0;q<=QMAX;q+=.05){
+      const pD=d2(q);
+      const pS=fn(q);
+      const d=Math.abs(pD-pS);
+      if(d<best.d){
+        best={q,p:(pD+pS)/2,d};
+      }
+    }
+    return best;
+  }
+
+  function initialEq(){
+    return {q:Q1,p:P1};
+  }
+
+  function shortRunEq(){
+    return intersectionDemandWith(s1);
+  }
+
+  function longRunEq(){
+    return intersectionDemandWith(lrs);
+  }
+
+  // S2 passes through the new long-run equilibrium.
+  function s2(q){
+    const e=longRunEq();
+    return e.p+supplySlope*(q-e.q);
+  }
+
+  function el(tag,a={},txt=''){
+    const n=document.createElementNS('http://www.w3.org/2000/svg',tag);
+    Object.entries(a).forEach(([k,v])=>n.setAttribute(k,v));
+    if(txt)n.textContent=txt;
+    return n;
+  }
+
+  function path(fn){
+    let d='';
+    for(let q=0;q<=QMAX;q+=2){
+      const p=fn(q);
+      d+=(q===0?'M':'L')+x(q).toFixed(1)+','+y(clamp(p,0,PMAX)).toFixed(1);
+    }
+    return d;
+  }
+
+  function point(q,p,cls,r=6){
+    marks.appendChild(el('circle',{cx:x(q),cy:y(p),r,class:cls}));
+  }
+
+  function guides(q,p,label){
+    marks.appendChild(el('line',{x1:x(q),y1:y(p),x2:x(q),y2:B,class:'guide'}));
+    marks.appendChild(el('line',{x1:L,y1:y(p),x2:x(q),y2:y(p),class:'guide'}));
+    labels.appendChild(el('text',{
+      x:x(q),y:B+38,'text-anchor':'middle',
+      'font-size':'12','font-weight':'700',fill:'#202124'
+    },label));
+  }
+
+  function render(){
+    $('#shiftOut').textContent=shift.value;
+
+    ['constant','increasing','decreasing'].forEach(v=>{
+      $('#'+v+'Card').classList.toggle('current',type.value===v);
+    });
+
+    $$('.stepButtons button').forEach(b=>{
+      b.classList.toggle('active',+b.dataset.step===step);
+    });
+
+    const e1=initialEq();
+    const esr=shortRunEq();
+    const e2=longRunEq();
+
+    grid.innerHTML='';
+    axes.innerHTML='';
+    marks.innerHTML='';
+    labels.innerHTML='';
+
+    [0,2,4,6,8,10,12].forEach(p=>{
+      const yy=y(p);
+      grid.appendChild(el('line',{x1:L,y1:yy,x2:R,y2:yy,class:'gridline'}));
+      labels.appendChild(el('text',{
+        x:L-9,y:yy+4,'text-anchor':'end','font-size':'12',fill:'#5f6368'
+      },'$'+p));
+    });
+
+    [0,20,40,60,80,100,120].forEach(q=>{
+      const xx=x(q);
+      grid.appendChild(el('line',{x1:xx,y1:T,x2:xx,y2:B,class:'gridline'}));
+      labels.appendChild(el('text',{
+        x:xx,y:B+22,'text-anchor':'middle','font-size':'12',fill:'#5f6368'
+      },String(q)));
+    });
+
+    axes.appendChild(el('line',{x1:L,y1:B,x2:R,y2:B,class:'axis'}));
+    axes.appendChild(el('line',{x1:L,y1:T,x2:L,y2:B,class:'axis'}));
+
+    labels.appendChild(el('text',{
+      x:(L+R)/2,y:430,'text-anchor':'middle',
+      'font-size':'14','font-weight':'700',fill:'#202124'
+    },'Industry quantity'));
+
+    labels.appendChild(el('text',{
+      x:18,y:(T+B)/2,
+      transform:'rotate(-90 18 '+((T+B)/2)+')',
+      'text-anchor':'middle','font-size':'14','font-weight':'700',fill:'#202124'
+    },'Price'));
+
+    d1Path.setAttribute('d',path(d1));
+    s1Path.setAttribute('d',path(s1));
+    lrsPath.setAttribute('d',path(lrs));
+    d2Path.setAttribute('d',path(d2));
+    s2Path.setAttribute('d',path(s2));
+
+    d2Path.style.opacity=step>=2?'1':'0.12';
+    s2Path.style.opacity=step>=3?'1':'0.12';
+    lrsPath.style.opacity=step>=3?'1':'0.38';
+
+    labels.appendChild(el('text',{
+      x:x(15),y:y(d1(15))-8,'font-size':'13','font-weight':'700',fill:'#315f9f'
+    },'D1'));
+
+    labels.appendChild(el('text',{
+      x:x(34),y:y(d2(34))-8,'font-size':'13','font-weight':'700',
+      fill:'#315f9f',opacity:step>=2?'1':'.25'
+    },'D2'));
+
+    labels.appendChild(el('text',{
+      x:x(92),y:y(s1(92))-8,'font-size':'13','font-weight':'700',fill:'#2f6f4e'
+    },'S1'));
+
+    labels.appendChild(el('text',{
+      x:x(108),y:y(s2(108))-8,'text-anchor':'end',
+      'font-size':'13','font-weight':'700',fill:'#2f6f4e',
+      opacity:step>=3?'1':'.25'
+    },'S2'));
+
+    labels.appendChild(el('text',{
+      x:x(98),y:y(lrs(98))-10,'font-size':'13','font-weight':'800',
+      fill:'#c41230',opacity:step>=3?'1':'.45'
+    },'LRS'));
+
+    point(e1.q,e1.p,'eq1');
+    guides(e1.q,e1.p,'Q1');
+
+    if(step>=2){
+      point(esr.q,esr.p,'srDot');
+      guides(esr.q,esr.p,'Short run');
+    }
+
+    if(step>=3){
+      point(e2.q,e2.p,'eq2',7);
+      guides(e2.q,e2.p,'Q2');
+    }
+
+    let statusText='';
+
+    if(step===1){
+      statusText=`<strong>Initial equilibrium:</strong> D1 intersects S1 at price <strong>$${e1.p.toFixed(2)}</strong> and quantity <strong>${e1.q.toFixed(1)}</strong>. Firms are in their original long-run equilibrium.`;
+    }
+
+    if(step===2){
+      statusText=`<strong>Demand increases:</strong> D1 shifts right to D2. In the short run, industry supply is still S1, so price rises to <strong>$${esr.p.toFixed(2)}</strong> and output increases to <strong>${esr.q.toFixed(1)}</strong>. The higher price creates an incentive for firms to enter or expand.`;
+    }
+
+    if(step===3){
+      const direction=
+        type.value==='constant'
+          ? 'returns to its original level'
+          : type.value==='increasing'
+            ? 'settles above its original level'
+            : 'settles below its original level';
+
+      const reason=
+        type.value==='constant'
+          ? 'industry expansion does not change firms’ input costs'
+          : type.value==='increasing'
+            ? 'industry expansion raises input costs'
+            : 'industry expansion lowers input costs through external economies or improved supplier conditions';
+
+      statusText=`<strong>Long-run adjustment:</strong> supply expands from S1 to S2. Price ${direction} at <strong>$${e2.p.toFixed(2)}</strong>, while industry quantity rises to <strong>${e2.q.toFixed(1)}</strong>. This occurs because ${reason}.`;
+    }
+
+    $('#status').innerHTML=statusText;
+
+    $('#metrics').innerHTML=
+      `<div class="metric"><div class="small muted">Initial price</div><div class="big">$${e1.p.toFixed(2)}</div></div>
+       <div class="metric"><div class="small muted">Short-run price</div><div class="big">$${esr.p.toFixed(2)}</div></div>
+       <div class="metric"><div class="small muted">Long-run price</div><div class="big">$${e2.p.toFixed(2)}</div></div>
+       <div class="metric"><div class="small muted">Long-run quantity</div><div class="big">${e2.q.toFixed(1)}</div></div>`;
+
+    const typeText=
+      type.value==='constant'
+        ? 'constant-cost'
+        : type.value==='increasing'
+          ? 'increasing-cost'
+          : 'decreasing-cost';
+
+    svg.setAttribute(
+      'aria-label',
+      `A ${typeText} industry. Initial equilibrium price ${e1.p.toFixed(2)}, quantity ${e1.q.toFixed(1)}. After demand increases, short-run price ${esr.p.toFixed(2)}. Long-run equilibrium price ${e2.p.toFixed(2)}, quantity ${e2.q.toFixed(1)}.`
+    );
+  }
+
+  $$('.stepButtons button').forEach(b=>{
+    b.addEventListener('click',()=>{
+      step=+b.dataset.step;
+      render();
+    });
+  });
+
+  [type,shift].forEach(c=>c.addEventListener('input',render));
+
+  $('#resetBtn').addEventListener('click',()=>{
+    type.value='constant';
+    shift.value=20;
+    step=1;
+    render();
+  });
+
+  render();
+})();
+</script>
+</body>
+</html>
