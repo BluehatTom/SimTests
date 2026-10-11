@@ -1,0 +1,401 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Short-Run Outcomes Explorer</title>
+  <style>
+    :root{
+      --miami:#c41230;
+      --miami-dark:#8c0d22;
+      --blue:#315f9f;
+      --green:#2f6f4e;
+      --purple:#6b4fa3;
+      --profit:#2f6f4e;
+      --loss:#9a6700;
+      --shutdown:#8c0d22;
+      --ink:#202124;
+      --muted:#5f6368;
+      --panel:#f7f7f8;
+      --card:#ffffff;
+      --border:#d9dde3;
+    }
+    body{
+      font-family:Arial,Helvetica,sans-serif;
+      margin:0;
+      padding:24px;
+      background:#fff;
+      color:var(--ink);
+    }
+    #shortRunLab{max-width:1180px;margin:0 auto}
+    .layout{display:grid;grid-template-columns:minmax(0,1.7fr) minmax(260px,.8fr);gap:16px}
+    .card{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:16px}
+    .control{display:grid;grid-template-columns:minmax(145px,1fr) 2fr 78px;gap:12px;align-items:center;margin:14px 0}
+    input[type=range]{width:100%;accent-color:var(--miami)}
+    button{min-height:44px;border:1px solid var(--border);border-radius:10px;background:var(--card);padding:9px 13px;font-weight:700;cursor:pointer}
+    button:hover{background:#fff3f5}
+    button:focus-visible,input:focus-visible{outline:3px solid var(--miami);outline-offset:2px}
+    .graphWrap{overflow-x:auto}
+    svg{display:block;width:100%;min-width:560px;height:auto}
+    .gridline{stroke:var(--border);stroke-width:1}
+    .axis{stroke:var(--muted);stroke-width:1.3}
+    .atc{fill:none;stroke:var(--blue);stroke-width:3}
+    .avc{fill:none;stroke:var(--purple);stroke-width:3;stroke-dasharray:9 5}
+    .mc{fill:none;stroke:var(--green);stroke-width:3;stroke-dasharray:3 4}
+    .price{fill:none;stroke:var(--miami);stroke-width:3;stroke-dasharray:12 5}
+    .guide{stroke:var(--miami-dark);stroke-width:1.4;stroke-dasharray:4 4}
+    .dot{fill:var(--miami);stroke:#fff;stroke-width:2}
+    .zoneBand{opacity:.09}
+    .metrics{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}
+    .metric{border-top:4px solid var(--miami);padding-top:8px}
+    .big{font-size:1.2rem;font-weight:800}
+    .small{font-size:.9rem}
+    .muted{color:var(--muted)}
+    .decision{padding:14px;border-radius:10px;border-left:5px solid var(--miami);background:#fff5f6}
+    .zoneList{display:grid;gap:10px}
+    .zone{padding:12px;border-radius:9px;background:var(--panel)}
+    .zone.current{outline:3px solid var(--miami);background:#fff5f6}
+    .legend{display:flex;flex-wrap:wrap;gap:16px;font-size:.9rem;margin-top:8px}
+    .swatch{display:inline-block;width:28px;vertical-align:middle;margin-right:6px}
+    .atcS{border-top:3px solid var(--blue)}
+    .avcS{border-top:3px dashed var(--purple)}
+    .mcS{border-top:3px dotted var(--green)}
+    .priceS{border-top:3px dashed var(--miami)}
+    .toprow{display:flex;flex-wrap:wrap;justify-content:space-between;gap:12px;align-items:flex-start}
+    .row{display:flex;flex-wrap:wrap;gap:8px}
+    .mt{margin-top:16px}
+    .twocol{display:grid;grid-template-columns:repeat(2,1fr);gap:16px}
+    @media(max-width:720px){
+      .layout,.twocol{grid-template-columns:1fr}
+      .control{grid-template-columns:1fr}
+      .metrics{grid-template-columns:1fr 1fr}
+    }
+    @media(max-width:450px){.metrics{grid-template-columns:1fr}}
+  </style>
+</head>
+<body>
+<div id="shortRunLab">
+  <div class="layout">
+    <section class="card">
+      <div class="toprow">
+        <div>
+          <h2>Explore the three short-run outcome zones</h2>
+          <p class="small muted">The MC curve can be divided into three economically important regions based on where price falls relative to ATC and AVC.</p>
+        </div>
+        <button type="button" id="resetBtn">Reset</button>
+      </div>
+
+      <div class="graphWrap mt">
+        <svg id="chart" viewBox="0 0 720 440" role="img" aria-labelledby="chartTitle chartDesc">
+          <title id="chartTitle">Short-run outcomes for a perfectly competitive firm</title>
+          <desc id="chartDesc">Average total cost and average variable cost are U-shaped. Marginal cost crosses each at its minimum. A horizontal price line determines whether the firm earns profit, incurs a loss but continues operating, or shuts down.</desc>
+          <g id="zones"></g>
+          <g id="grid"></g>
+          <g id="axes"></g>
+          <path id="atcPath" class="atc"></path>
+          <path id="avcPath" class="avc"></path>
+          <path id="mcPath" class="mc"></path>
+          <path id="pricePath" class="price"></path>
+          <g id="marks"></g>
+          <g id="labels"></g>
+        </svg>
+      </div>
+
+      <div class="legend" aria-label="Graph legend">
+        <span><span class="swatch atcS" aria-hidden="true"></span><strong>ATC</strong> — solid</span>
+        <span><span class="swatch avcS" aria-hidden="true"></span><strong>AVC</strong> — dashed</span>
+        <span><span class="swatch mcS" aria-hidden="true"></span><strong>MC</strong> — dotted</span>
+        <span><span class="swatch priceS" aria-hidden="true"></span><strong>Price = MR</strong> — long dashed</span>
+      </div>
+
+      <div id="metrics" class="metrics mt" aria-live="polite"></div>
+      <div id="decision" class="decision mt" aria-live="polite"></div>
+    </section>
+
+    <aside class="card">
+      <h2>Move the market price</h2>
+      <p class="small muted">Watch the firm move smoothly through the three short-run zones.</p>
+
+      <div class="control">
+        <label for="price"><strong>Market price</strong><br><span class="small muted">Also equals marginal revenue</span></label>
+        <input id="price" type="range" min="1" max="9" step="0.25" value="5">
+        <output id="priceOut" for="price">$5.00</output>
+      </div>
+
+      <div class="mt">
+        <h3>Jump to a zone</h3>
+        <div class="row">
+          <button type="button" class="zoneBtn" data-zone="profit">Profit zone</button>
+          <button type="button" class="zoneBtn" data-zone="loss">Loss, continue operating</button>
+          <button type="button" class="zoneBtn" data-zone="shutdown">Shutdown zone</button>
+        </div>
+      </div>
+
+      <div class="zoneList mt small">
+        <div class="zone" id="profitZone"><strong>Profit zone</strong><br>Price &gt; break-even price → price &gt; ATC.</div>
+        <div class="zone" id="lossZone"><strong>Loss but continue operating</strong><br>Shutdown price &lt; price &lt; break-even price.</div>
+        <div class="zone" id="shutdownZone"><strong>Shutdown zone</strong><br>Price &lt; shutdown price → price &lt; AVC.</div>
+      </div>
+    </aside>
+  </div>
+
+  <section class="card mt">
+    <h2>Two key points on the MC curve</h2>
+    <div class="twocol small mt">
+      <div><strong>Break-even point</strong><br>The point where MC crosses ATC at ATC's minimum. If price equals this level, the firm earns zero economic profit.</div>
+      <div><strong>Shutdown point</strong><br>The point where MC crosses AVC at AVC's minimum. If price falls below this level, the firm should stop producing in the short run.</div>
+    </div>
+  </section>
+</div>
+
+<script>
+(()=>{
+  const root=document.getElementById('shortRunLab');
+  const $=s=>root.querySelector(s), $$=s=>[...root.querySelectorAll(s)];
+
+  const price=$('#price');
+  const grid=$('#grid');
+  const axes=$('#axes');
+  const marks=$('#marks');
+  const labels=$('#labels');
+  const zones=$('#zones');
+  const atcPath=$('#atcPath');
+  const avcPath=$('#avcPath');
+  const mcPath=$('#mcPath');
+  const pricePath=$('#pricePath');
+  const svg=$('#chart');
+
+  const L=66,R=688,T=24,B=365,W=R-L,H=B-T,QMAX=100,YMAX=14;
+  const x=q=>L+(q/QMAX)*W;
+  const y=v=>B-(v/YMAX)*H;
+  const money=v=>'$'+v.toFixed(2);
+
+  // Cost-consistent model:
+  // AVC = a - bQ + cQ^2
+  // MC  = a - 2bQ + 3cQ^2
+  // ATC = AVC + F/Q
+  const A=5.0,BETA=0.08,C=0.0008,F=80;
+
+  function avc(q){return A-BETA*q+C*q*q;}
+  function atc(q){return avc(q)+F/Math.max(q,1);}
+  function mc(q){return A-2*BETA*q+3*C*q*q;}
+
+  // Profit-maximizing MR=MC must use the rising portion of MC.
+  const mcMinQ=BETA/(3*C);
+
+  function minPoint(fn){
+    let best={q:1,v:fn(1)};
+    for(let q=1.01;q<=QMAX;q+=0.01){
+      const v=fn(q);
+      if(v<best.v)best={q,v};
+    }
+    return best;
+  }
+
+  function qStar(p){
+    let best=mcMinQ,diff=Infinity;
+    for(let q=mcMinQ;q<=QMAX;q+=0.05){
+      const d=Math.abs(mc(q)-p);
+      if(d<diff){
+        diff=d;
+        best=q;
+      }
+    }
+    return best;
+  }
+
+  function el(tag,a={},txt=''){
+    const n=document.createElementNS('http://www.w3.org/2000/svg',tag);
+    Object.entries(a).forEach(([k,v])=>n.setAttribute(k,v));
+    if(txt)n.textContent=txt;
+    return n;
+  }
+
+  function curve(fn){
+    let d='';
+    for(let q=8;q<=QMAX;q+=1){
+      d+=(q===8?'M':'L')+x(q).toFixed(1)+','+y(fn(q)).toFixed(1);
+    }
+    return d;
+  }
+
+  function render(){
+    const p=+price.value;
+    const shutdown=minPoint(avc);
+    const breakeven=minPoint(atc);
+    const q=qStar(p);
+    const a=atc(q);
+    const v=avc(q);
+    const m=mc(q);
+
+    $('#priceOut').textContent=money(p);
+
+    zones.innerHTML='';
+    grid.innerHTML='';
+    axes.innerHTML='';
+    marks.innerHTML='';
+    labels.innerHTML='';
+
+    const yBE=y(breakeven.v);
+    const ySD=y(shutdown.v);
+
+    zones.appendChild(el('rect',{
+      x:L,y:T,width:W,height:Math.max(0,yBE-T),
+      fill:'#2f6f4e',class:'zoneBand'
+    }));
+    zones.appendChild(el('rect',{
+      x:L,y:yBE,width:W,height:Math.max(0,ySD-yBE),
+      fill:'#9a6700',class:'zoneBand'
+    }));
+    zones.appendChild(el('rect',{
+      x:L,y:ySD,width:W,height:Math.max(0,B-ySD),
+      fill:'#8c0d22',class:'zoneBand'
+    }));
+
+    [0,2,4,6,8,10,12,14].forEach(val=>{
+      const yy=y(val);
+      grid.appendChild(el('line',{x1:L,y1:yy,x2:R,y2:yy,class:'gridline'}));
+      labels.appendChild(el('text',{x:L-8,y:yy+4,'text-anchor':'end','font-size':'12',fill:'#5f6368'},'$'+val));
+    });
+
+    [0,20,40,60,80,100].forEach(val=>{
+      const xx=x(val);
+      grid.appendChild(el('line',{x1:xx,y1:T,x2:xx,y2:B,class:'gridline'}));
+      labels.appendChild(el('text',{x:xx,y:B+22,'text-anchor':'middle','font-size':'12',fill:'#5f6368'},String(val)));
+    });
+
+    axes.appendChild(el('line',{x1:L,y1:B,x2:R,y2:B,class:'axis'}));
+    axes.appendChild(el('line',{x1:L,y1:T,x2:L,y2:B,class:'axis'}));
+
+    labels.appendChild(el('text',{
+      x:(L+R)/2,y:415,'text-anchor':'middle','font-size':'14','font-weight':'700',fill:'#202124'
+    },'Output'));
+
+    labels.appendChild(el('text',{
+      x:18,y:(T+B)/2,
+      transform:'rotate(-90 18 '+((T+B)/2)+')',
+      'text-anchor':'middle','font-size':'14','font-weight':'700',fill:'#202124'
+    },'Cost or price ($)'));
+
+    atcPath.setAttribute('d',curve(atc));
+    avcPath.setAttribute('d',curve(avc));
+    mcPath.setAttribute('d',curve(mc));
+    pricePath.setAttribute('d',`M${L},${y(p)} L${R},${y(p)}`);
+
+    marks.appendChild(el('line',{x1:x(q),y1:y(p),x2:x(q),y2:B,class:'guide'}));
+    marks.appendChild(el('circle',{cx:x(q),cy:y(m),r:7,class:'dot'}));
+    marks.appendChild(el('circle',{
+      cx:x(breakeven.q),cy:y(breakeven.v),r:6,
+      fill:'#315f9f',stroke:'#fff','stroke-width':2
+    }));
+    marks.appendChild(el('circle',{
+      cx:x(shutdown.q),cy:y(shutdown.v),r:6,
+      fill:'#6b4fa3',stroke:'#fff','stroke-width':2
+    }));
+
+    labels.appendChild(el('text',{
+      x:x(breakeven.q)+10,y:y(breakeven.v)-10,
+      'font-size':'12','font-weight':'700',fill:'#315f9f'
+    },'Break-even point'));
+
+    labels.appendChild(el('text',{
+      x:x(shutdown.q)-10,y:y(shutdown.v)+20,
+      'text-anchor':'end','font-size':'12','font-weight':'700',fill:'#6b4fa3'
+    },'Shutdown point'));
+
+    labels.appendChild(el('text',{
+      x:R-6,y:y(p)-8,'text-anchor':'end',
+      'font-size':'13','font-weight':'700',fill:'#c41230'
+    },'Price = MR'));
+
+    labels.appendChild(el('text',{
+      x:R-6,y:Math.max(T+16,y(mc(QMAX))-8),'text-anchor':'end',
+      'font-size':'13','font-weight':'700',fill:'#2f6f4e'
+    },'MC'));
+
+    labels.appendChild(el('text',{
+      x:R-6,y:y(atc(QMAX))-9,'text-anchor':'end',
+      'font-size':'13','font-weight':'700',fill:'#315f9f'
+    },'ATC'));
+
+    labels.appendChild(el('text',{
+      x:R-6,y:y(avc(QMAX))+15,'text-anchor':'end',
+      'font-size':'13','font-weight':'700',fill:'#6b4fa3'
+    },'AVC'));
+
+    labels.appendChild(el('text',{
+      x:x(q),y:B+42,'text-anchor':'middle',
+      'font-size':'12','font-weight':'700',fill:'#8c0d22'
+    },'Q* ≈ '+q.toFixed(1)));
+
+    let zone,outcome,detail;
+
+    if(p>breakeven.v+0.03){
+      zone='profit';
+      outcome='PROFIT ZONE';
+      detail=`Price (${money(p)}) is above the break-even price (${money(breakeven.v)}), so price is above ATC at Q*. The firm earns economic profit.`;
+    }else if(Math.abs(p-breakeven.v)<=0.03){
+      zone='profit';
+      outcome='BREAK EVEN';
+      detail=`Price is approximately equal to the minimum ATC (${money(breakeven.v)}). The firm earns zero economic profit.`;
+    }else if(p>=shutdown.v){
+      zone='loss';
+      outcome='LOSS — CONTINUE OPERATING';
+      detail=`Price is below the break-even price but above the shutdown price (${money(shutdown.v)}). The firm incurs a loss but covers variable costs, so it continues producing in the short run.`;
+    }else{
+      zone='shutdown';
+      outcome='SHUTDOWN ZONE';
+      detail=`Price (${money(p)}) is below the shutdown price (${money(shutdown.v)}). The firm cannot cover average variable cost and should stop producing in the short run.`;
+    }
+
+    ['profit','loss','shutdown'].forEach(z=>{
+      $('#'+z+'Zone').classList.toggle('current',z===zone);
+    });
+
+    $('#metrics').innerHTML=
+      `<div class="metric"><div class="small muted">Price / MR</div><div class="big">${money(p)}</div></div>
+       <div class="metric"><div class="small muted">Q*</div><div class="big">${q.toFixed(1)} units</div></div>
+       <div class="metric"><div class="small muted">Break-even price</div><div class="big">${money(breakeven.v)}</div></div>
+       <div class="metric"><div class="small muted">Shutdown price</div><div class="big">${money(shutdown.v)}</div></div>`;
+
+    $('#decision').innerHTML=`<strong>${outcome}</strong><br><span class="small">${detail}</span>`;
+
+    svg.setAttribute(
+      'aria-label',
+      `Market price is ${money(p)}. Break-even price is ${money(breakeven.v)}. Shutdown price is ${money(shutdown.v)}. Profit maximizing quantity is approximately ${q.toFixed(1)} units. Current outcome: ${outcome}.`
+    );
+
+    price.setAttribute(
+      'aria-valuetext',
+      `Market price ${money(p)}. Profit maximizing quantity approximately ${q.toFixed(1)} units. Current outcome ${outcome}.`
+    );
+  }
+
+  price.addEventListener('input',render);
+
+  $$('.zoneBtn').forEach(btn=>btn.addEventListener('click',()=>{
+    const shutdown=minPoint(avc);
+    const breakeven=minPoint(atc);
+
+    if(btn.dataset.zone==='profit'){
+      price.value=Math.min(9,breakeven.v+2);
+    }
+    if(btn.dataset.zone==='loss'){
+      price.value=(shutdown.v+breakeven.v)/2;
+    }
+    if(btn.dataset.zone==='shutdown'){
+      price.value=Math.max(1,shutdown.v-.75);
+    }
+    render();
+  }));
+
+  $('#resetBtn').addEventListener('click',()=>{
+    price.value=5;
+    render();
+  });
+
+  render();
+})();
+</script>
+</body>
+</html>
