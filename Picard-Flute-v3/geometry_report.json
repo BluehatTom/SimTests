@@ -1,0 +1,189 @@
+{
+  "body": {
+    "file": "01_FLUTE_BODY_ONE_PIECE.stl",
+    "triangles": 4368,
+    "volume_mm3": 24456.6,
+    "bounds_mm": [
+      [
+        -8.2,
+        -8.2,
+        0.0
+      ],
+      [
+        8.2,
+        8.2,
+        221.0
+      ]
+    ]
+  },
+  "A_BALANCED": {
+    "file": "10_MOUTHPIECE_A_BALANCED.stl",
+    "triangles": 1398,
+    "volume_mm3": 7173.5,
+    "bounds_mm": [
+      [
+        -8.2,
+        -0.0,
+        -0.0
+      ],
+      [
+        8.2,
+        50.0,
+        15.78
+      ]
+    ]
+  },
+  "B_EASY_START": {
+    "file": "11_MOUTHPIECE_B_EASY_START.stl",
+    "triangles": 1386,
+    "volume_mm3": 7113.6,
+    "bounds_mm": [
+      [
+        -8.2,
+        -0.0,
+        -0.0
+      ],
+      [
+        8.2,
+        50.0,
+        15.78
+      ]
+    ]
+  },
+  "C_NARROW_JET": {
+    "file": "12_MOUTHPIECE_C_NARROW_JET.stl",
+    "triangles": 1424,
+    "volume_mm3": 7218.9,
+    "bounds_mm": [
+      [
+        -8.2,
+        -0.0,
+        -0.0
+      ],
+      [
+        8.2,
+        50.0,
+        15.78
+      ]
+    ]
+  },
+  "D_SHORT_WINDOW": {
+    "file": "13_MOUTHPIECE_D_SHORT_WINDOW.stl",
+    "triangles": 1396,
+    "volume_mm3": 7154.6,
+    "bounds_mm": [
+      [
+        -8.2,
+        -0.0,
+        -0.0
+      ],
+      [
+        8.2,
+        50.0,
+        15.78
+      ]
+    ]
+  },
+  "E_WIDE_WINDOW": {
+    "file": "14_MOUTHPIECE_E_WIDE_WINDOW.stl",
+    "triangles": 1394,
+    "volume_mm3": 7146.5,
+    "bounds_mm": [
+      [
+        -8.2,
+        -0.0,
+        -0.0
+      ],
+      [
+        8.2,
+        50.0,
+        15.78
+      ]
+    ]
+  },
+  "resonator": {
+    "file": "20_SHORT_TEST_RESONATOR.stl",
+    "triangles": 1440,
+    "volume_mm3": 14464.1,
+    "bounds_mm": [
+      [
+        -8.2,
+        -8.2,
+        0.0
+      ],
+      [
+        8.2,
+        8.2,
+        131.0
+      ]
+    ]
+  },
+  "sound_test_A_BALANCED": {
+    "file": "00_NO_JOINT_SOUND_TEST_A_BALANCED.stl",
+    "triangles": 894,
+    "volume_mm3": 24217.6,
+    "bounds_mm": [
+      [
+        -8.2,
+        -0.0,
+        -0.0
+      ],
+      [
+        8.2,
+        195.0,
+        15.78
+      ]
+    ]
+  },
+  "sound_test_B_EASY_START": {
+    "file": "01_NO_JOINT_SOUND_TEST_B_EASY_START.stl",
+    "triangles": 882,
+    "volume_mm3": 24158.0,
+    "bounds_mm": [
+      [
+        -8.2,
+        -0.0,
+        -0.0
+      ],
+      [
+        8.2,
+        195.0,
+        15.78
+      ]
+    ]
+  },
+  "fit_male": {
+    "file": "30_FIT_GAUGE_MALE.stl",
+    "triangles": 1440,
+    "volume_mm3": 1228.8,
+    "bounds_mm": [
+      [
+        -8.2,
+        -8.2,
+        0.0
+      ],
+      [
+        8.2,
+        8.2,
+        17.0
+      ]
+    ]
+  },
+  "fit_female": {
+    "file": "31_FIT_GAUGE_FEMALE.stl",
+    "triangles": 1176,
+    "volume_mm3": 923.9,
+    "bounds_mm": [
+      [
+        -8.2,
+        -8.2,
+        0.0
+      ],
+      [
+        8.2,
+        8.2,
+        13.0
+      ]
+    ]
+  }
+}
