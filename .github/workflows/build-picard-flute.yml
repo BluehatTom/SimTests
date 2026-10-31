@@ -1,0 +1,36 @@
+name: Build Picard Flute STLs
+on:
+  push:
+    paths:
+      - 'Picard-Flute-v3/CAD/**'
+      - '.github/workflows/build-picard-flute.yml'
+  workflow_dispatch:
+permissions:
+  contents: write
+jobs:
+  build:
+    if: github.actor != 'github-actions[bot]'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install CAD tools
+        run: python -m pip install "cadquery>=2.4,<3" "trimesh>=4,<5"
+      - name: Generate and verify STL files
+        run: python Picard-Flute-v3/CAD/build_flute.py
+      - name: Commit printable STL files
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add Picard-Flute-v3/STL Picard-Flute-v3/geometry_report.json
+          if ! git diff --cached --quiet; then
+            git commit -m "Build printable Picard flute v3 STL models"
+            git push
+          fi
+      - name: Upload downloadable STL bundle
+        uses: actions/upload-artifact@v4
+        with:
+          name: Picard-Flute-v3-STLs
+          path: Picard-Flute-v3/STL/*.stl
