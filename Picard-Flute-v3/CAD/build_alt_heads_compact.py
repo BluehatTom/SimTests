@@ -73,7 +73,8 @@ def head(spec):
         assert not empty(0,5.9,35+ext),(name,'no central duct divider')
         if kind=='double':assert not empty(0,6.65,ze-.5),(name,'windows are not separated')
     # Validate receiving socket identical to confirmed-working v3.
-    orig,_=make_head('reference')
+    reference=make_head('reference')
+    orig=reference[0] if isinstance(reference,tuple) else reference
     for x,y in [(0,0),(0,6.8),(0,7.5),(6.8,0),(0,-7.3)]:
         assert s.isInside(cq.Vector(x,y,5),.0001)==orig.isInside(cq.Vector(x,y,5),.0001)
     return s
