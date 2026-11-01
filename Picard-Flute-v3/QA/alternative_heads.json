@@ -1,0 +1,236 @@
+{
+  "01_STABLE_LONG_WINDWAY": {
+    "filename": "01_STABLE_LONG_WINDWAY.stl",
+    "kind": "single",
+    "slot_height_mm": 1.02,
+    "slot_width_mm": 6.45,
+    "window_length_mm": 4.35,
+    "edge_offset_mm": 0.0,
+    "exit_chamfer_mm": 0.18,
+    "extra_length_mm": 0,
+    "volume_mm3": 7174.4,
+    "triangles": 1416,
+    "bounds_mm": [
+      [
+        -8.2,
+        -0.0,
+        -0.0
+      ],
+      [
+        8.2,
+        50.0,
+        15.78
+      ]
+    ],
+    "fit_v3": true,
+    "air_channels_open": true
+  },
+  "02_WARM_GENTLE": {
+    "filename": "02_WARM_GENTLE.stl",
+    "kind": "single",
+    "slot_height_mm": 0.87,
+    "slot_width_mm": 6.2,
+    "window_length_mm": 4.6,
+    "edge_offset_mm": -0.05,
+    "exit_chamfer_mm": 0.12,
+    "extra_length_mm": 0,
+    "volume_mm3": 7205.1,
+    "triangles": 1422,
+    "bounds_mm": [
+      [
+        -8.2,
+        -0.0,
+        -0.0
+      ],
+      [
+        8.2,
+        50.0,
+        15.78
+      ]
+    ],
+    "fit_v3": true,
+    "air_channels_open": true
+  },
+  "03_BRIGHT_HARMONICS": {
+    "filename": "03_BRIGHT_HARMONICS.stl",
+    "kind": "single",
+    "slot_height_mm": 0.86,
+    "slot_width_mm": 6.8,
+    "window_length_mm": 3.55,
+    "edge_offset_mm": 0.08,
+    "exit_chamfer_mm": 0,
+    "extra_length_mm": 0,
+    "volume_mm3": 7187.9,
+    "triangles": 1402,
+    "bounds_mm": [
+      [
+        -8.2,
+        -0.0,
+        -0.0
+      ],
+      [
+        8.2,
+        50.0,
+        15.78
+      ]
+    ],
+    "fit_v3": true,
+    "air_channels_open": true
+  },
+  "04_BREATHY_OPEN": {
+    "filename": "04_BREATHY_OPEN.stl",
+    "kind": "single",
+    "slot_height_mm": 1.35,
+    "slot_width_mm": 7.0,
+    "window_length_mm": 4.65,
+    "edge_offset_mm": -0.12,
+    "exit_chamfer_mm": 0,
+    "extra_length_mm": 0,
+    "volume_mm3": 7078.1,
+    "triangles": 1410,
+    "bounds_mm": [
+      [
+        -8.2,
+        -0.0,
+        -0.0
+      ],
+      [
+        8.2,
+        50.0,
+        15.78
+      ]
+    ],
+    "fit_v3": true,
+    "air_channels_open": true
+  },
+  "05_EASY_OVERTONE": {
+    "filename": "05_EASY_OVERTONE.stl",
+    "kind": "single",
+    "slot_height_mm": 0.82,
+    "slot_width_mm": 6.5,
+    "window_length_mm": 3.28,
+    "edge_offset_mm": 0.13,
+    "exit_chamfer_mm": 0,
+    "extra_length_mm": 0,
+    "volume_mm3": 7209.2,
+    "triangles": 1404,
+    "bounds_mm": [
+      [
+        -8.2,
+        -0.0,
+        -0.0
+      ],
+      [
+        8.2,
+        50.0,
+        15.78
+      ]
+    ],
+    "fit_v3": true,
+    "air_channels_open": true
+  },
+  "06_TWIN_JET_SINGLE_EDGE": {
+    "filename": "06_TWIN_JET_SINGLE_EDGE.stl",
+    "kind": "twin",
+    "slot_height_mm": 1.05,
+    "slot_width_mm": 6.5,
+    "window_length_mm": 4.05,
+    "edge_offset_mm": 0,
+    "exit_chamfer_mm": 0.07,
+    "extra_length_mm": 0,
+    "volume_mm3": 7185.3,
+    "triangles": 1474,
+    "bounds_mm": [
+      [
+        -8.2,
+        -0.0,
+        -0.0
+      ],
+      [
+        8.2,
+        50.0,
+        15.78
+      ]
+    ],
+    "fit_v3": true,
+    "air_channels_open": true
+  },
+  "07_TWIN_JET_DOUBLE_LABIUM": {
+    "filename": "07_TWIN_JET_DOUBLE_LABIUM.stl",
+    "kind": "double",
+    "slot_height_mm": 1.1,
+    "slot_width_mm": 6.5,
+    "window_length_mm": 4.15,
+    "edge_offset_mm": 0,
+    "exit_chamfer_mm": 0.06,
+    "extra_length_mm": 0,
+    "volume_mm3": 7203.0,
+    "triangles": 1442,
+    "bounds_mm": [
+      [
+        -8.2,
+        -0.0,
+        -0.0
+      ],
+      [
+        8.2,
+        50.0,
+        15.78
+      ]
+    ],
+    "fit_v3": true,
+    "air_channels_open": true
+  },
+  "08_LOWER_PITCH_12MM": {
+    "filename": "08_LOWER_PITCH_12MM.stl",
+    "kind": "single",
+    "slot_height_mm": 1.0,
+    "slot_width_mm": 6.5,
+    "window_length_mm": 4.1,
+    "edge_offset_mm": 0,
+    "exit_chamfer_mm": 0,
+    "extra_length_mm": 12,
+    "volume_mm3": 8535.6,
+    "triangles": 1398,
+    "bounds_mm": [
+      [
+        -8.2,
+        -0.0,
+        -0.0
+      ],
+      [
+        8.2,
+        62.0,
+        15.78
+      ]
+    ],
+    "fit_v3": true,
+    "air_channels_open": true
+  },
+  "09_LOWER_PITCH_24MM": {
+    "filename": "09_LOWER_PITCH_24MM.stl",
+    "kind": "single",
+    "slot_height_mm": 1.0,
+    "slot_width_mm": 6.5,
+    "window_length_mm": 4.1,
+    "edge_offset_mm": 0,
+    "exit_chamfer_mm": 0,
+    "extra_length_mm": 24,
+    "volume_mm3": 9897.7,
+    "triangles": 1398,
+    "bounds_mm": [
+      [
+        -8.2,
+        -0.0,
+        -0.0
+      ],
+      [
+        8.2,
+        74.0,
+        15.78
+      ]
+    ],
+    "fit_v3": true,
+    "air_channels_open": true
+  }
+}
