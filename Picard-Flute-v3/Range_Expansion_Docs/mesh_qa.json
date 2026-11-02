@@ -1,0 +1,110 @@
+{
+  "01_7HOLE_SIMPLE_NO_THUMB.stl": {
+    "file": "01_7HOLE_SIMPLE_NO_THUMB.stl",
+    "triangles": 4726,
+    "mm3": 24441.62,
+    "bounds_mm": [
+      [
+        -8.2,
+        -8.2,
+        0.0
+      ],
+      [
+        8.2,
+        8.2,
+        221.0
+      ]
+    ],
+    "bytes": 236384
+  },
+  "02_7HOLE_THUMB_3MM.stl": {
+    "file": "02_7HOLE_THUMB_3MM.stl",
+    "triangles": 5140,
+    "mm3": 24423.4,
+    "bounds_mm": [
+      [
+        -8.2,
+        -8.2,
+        0.0
+      ],
+      [
+        8.2,
+        8.2,
+        221.0
+      ]
+    ],
+    "bytes": 257084
+  },
+  "03_7HOLE_THUMB_SMALL_2_2MM.stl": {
+    "file": "03_7HOLE_THUMB_SMALL_2_2MM.stl",
+    "triangles": 5154,
+    "mm3": 24431.57,
+    "bounds_mm": [
+      [
+        -8.2,
+        -8.2,
+        0.0
+      ],
+      [
+        8.2,
+        8.2,
+        221.0
+      ]
+    ],
+    "bytes": 257784
+  },
+  "04_CHROMATIC_SPLIT_LOW_7HOLE_THUMB_3MM.stl": {
+    "file": "04_CHROMATIC_SPLIT_LOW_7HOLE_THUMB_3MM.stl",
+    "triangles": 5898,
+    "mm3": 24409.42,
+    "bounds_mm": [
+      [
+        -8.2,
+        -8.2,
+        0.0
+      ],
+      [
+        8.2,
+        8.2,
+        221.0
+      ]
+    ],
+    "bytes": 294984
+  },
+  "05_FOOT_EXTENSION_25MM.stl": {
+    "file": "05_FOOT_EXTENSION_25MM.stl",
+    "triangles": 1272,
+    "mm3": 7956.99,
+    "bounds_mm": [
+      [
+        -10.4,
+        -10.4,
+        0.0
+      ],
+      [
+        10.4,
+        10.4,
+        40.0
+      ]
+    ],
+    "bytes": 63684
+  },
+  "05_FOOT_EXTENSION_45MM.stl": {
+    "file": "05_FOOT_EXTENSION_45MM.stl",
+    "triangles": 1272,
+    "mm3": 12847.65,
+    "bounds_mm": [
+      [
+        -10.4,
+        -10.4,
+        0.0
+      ],
+      [
+        10.4,
+        10.4,
+        60.0
+      ]
+    ],
+    "bytes": 63684
+  }
+}
