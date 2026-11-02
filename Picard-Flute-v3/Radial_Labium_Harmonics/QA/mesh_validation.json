@@ -1,0 +1,266 @@
+{
+  "01_RADIAL_2_OPPOSED": {
+    "number_of_labia": 2,
+    "file": "01_RADIAL_2_OPPOSED.stl",
+    "bytes": 110784,
+    "triangles": 2214,
+    "volume_mm3": 6409.1,
+    "bounds_mm": [
+      [
+        -8.2,
+        -8.2,
+        0.0
+      ],
+      [
+        8.2,
+        8.2,
+        52.0
+      ]
+    ],
+    "matches_original_v3_joint": true,
+    "passages_open": true,
+    "physically_sound_tested": false,
+    "design": [
+      {
+        "angle_deg": 0,
+        "windway_width_mm": 4.6,
+        "windway_height_mm": 1.05,
+        "jet_to_labium_mm": 4.1,
+        "edge_offset_mm": 0.0,
+        "blade_tip_mm": 0.28
+      },
+      {
+        "angle_deg": 180,
+        "windway_width_mm": 3.6,
+        "windway_height_mm": 0.85,
+        "jet_to_labium_mm": 4.22,
+        "edge_offset_mm": 0.04,
+        "blade_tip_mm": 0.3
+      }
+    ]
+  },
+  "02_RADIAL_3_STAGGERED": {
+    "number_of_labia": 3,
+    "file": "02_RADIAL_3_STAGGERED.stl",
+    "bytes": 119784,
+    "triangles": 2394,
+    "volume_mm3": 6356.9,
+    "bounds_mm": [
+      [
+        -8.2,
+        -8.2,
+        0.0
+      ],
+      [
+        8.2,
+        8.2,
+        52.0
+      ]
+    ],
+    "matches_original_v3_joint": true,
+    "passages_open": true,
+    "physically_sound_tested": false,
+    "design": [
+      {
+        "angle_deg": 0,
+        "windway_width_mm": 4.75,
+        "windway_height_mm": 1.01,
+        "jet_to_labium_mm": 4.05,
+        "edge_offset_mm": 0.0,
+        "blade_tip_mm": 0.28
+      },
+      {
+        "angle_deg": 120,
+        "windway_width_mm": 2.8,
+        "windway_height_mm": 0.8,
+        "jet_to_labium_mm": 3.62,
+        "edge_offset_mm": 0.14,
+        "blade_tip_mm": 0.28
+      },
+      {
+        "angle_deg": 240,
+        "windway_width_mm": 2.55,
+        "windway_height_mm": 0.88,
+        "jet_to_labium_mm": 4.52,
+        "edge_offset_mm": -0.1,
+        "blade_tip_mm": 0.28
+      }
+    ]
+  },
+  "03_RADIAL_4_ALTERNATING": {
+    "number_of_labia": 4,
+    "file": "03_RADIAL_4_ALTERNATING.stl",
+    "bytes": 126684,
+    "triangles": 2532,
+    "volume_mm3": 6342.8,
+    "bounds_mm": [
+      [
+        -8.2,
+        -8.2,
+        0.0
+      ],
+      [
+        8.2,
+        8.2,
+        52.0
+      ]
+    ],
+    "matches_original_v3_joint": true,
+    "passages_open": true,
+    "physically_sound_tested": false,
+    "design": [
+      {
+        "angle_deg": 0,
+        "windway_width_mm": 3.0,
+        "windway_height_mm": 0.92,
+        "jet_to_labium_mm": 4.1,
+        "edge_offset_mm": 0.0,
+        "blade_tip_mm": 0.28
+      },
+      {
+        "angle_deg": 90,
+        "windway_width_mm": 2.55,
+        "windway_height_mm": 0.77,
+        "jet_to_labium_mm": 3.51,
+        "edge_offset_mm": 0.12,
+        "blade_tip_mm": 0.27
+      },
+      {
+        "angle_deg": 180,
+        "windway_width_mm": 2.85,
+        "windway_height_mm": 0.92,
+        "jet_to_labium_mm": 4.68,
+        "edge_offset_mm": -0.08,
+        "blade_tip_mm": 0.28
+      },
+      {
+        "angle_deg": 270,
+        "windway_width_mm": 2.45,
+        "windway_height_mm": 0.86,
+        "jet_to_labium_mm": 3.82,
+        "edge_offset_mm": 0.03,
+        "blade_tip_mm": 0.27
+      }
+    ]
+  },
+  "04_RADIAL_6_MICRO": {
+    "number_of_labia": 6,
+    "file": "04_RADIAL_6_MICRO.stl",
+    "bytes": 142884,
+    "triangles": 2856,
+    "volume_mm3": 6335.6,
+    "bounds_mm": [
+      [
+        -8.2,
+        -8.2,
+        0.0
+      ],
+      [
+        8.2,
+        8.2,
+        52.0
+      ]
+    ],
+    "matches_original_v3_joint": true,
+    "passages_open": true,
+    "physically_sound_tested": false,
+    "design": [
+      {
+        "angle_deg": 0,
+        "windway_width_mm": 1.95,
+        "windway_height_mm": 0.75,
+        "jet_to_labium_mm": 4.0,
+        "edge_offset_mm": 0.0,
+        "blade_tip_mm": 0.28
+      },
+      {
+        "angle_deg": 60,
+        "windway_width_mm": 1.9,
+        "windway_height_mm": 0.73,
+        "jet_to_labium_mm": 3.53,
+        "edge_offset_mm": 0.11,
+        "blade_tip_mm": 0.28
+      },
+      {
+        "angle_deg": 120,
+        "windway_width_mm": 2.0,
+        "windway_height_mm": 0.8,
+        "jet_to_labium_mm": 4.44,
+        "edge_offset_mm": -0.1,
+        "blade_tip_mm": 0.28
+      },
+      {
+        "angle_deg": 180,
+        "windway_width_mm": 1.95,
+        "windway_height_mm": 0.75,
+        "jet_to_labium_mm": 4.1,
+        "edge_offset_mm": 0.03,
+        "blade_tip_mm": 0.28
+      },
+      {
+        "angle_deg": 240,
+        "windway_width_mm": 1.85,
+        "windway_height_mm": 0.78,
+        "jet_to_labium_mm": 3.7,
+        "edge_offset_mm": 0.12,
+        "blade_tip_mm": 0.28
+      },
+      {
+        "angle_deg": 300,
+        "windway_width_mm": 2.0,
+        "windway_height_mm": 0.76,
+        "jet_to_labium_mm": 4.5,
+        "edge_offset_mm": -0.09,
+        "blade_tip_mm": 0.28
+      }
+    ]
+  },
+  "05_RADIAL_3_PRIMARY_PLUS_SATELLITES": {
+    "number_of_labia": 3,
+    "file": "05_RADIAL_3_PRIMARY_PLUS_SATELLITES.stl",
+    "bytes": 119784,
+    "triangles": 2394,
+    "volume_mm3": 6359.0,
+    "bounds_mm": [
+      [
+        -8.2,
+        -8.2,
+        0.0
+      ],
+      [
+        8.2,
+        8.2,
+        52.0
+      ]
+    ],
+    "matches_original_v3_joint": true,
+    "passages_open": true,
+    "physically_sound_tested": false,
+    "design": [
+      {
+        "angle_deg": 0,
+        "windway_width_mm": 6.0,
+        "windway_height_mm": 1.0,
+        "jet_to_labium_mm": 4.1,
+        "edge_offset_mm": 0.0,
+        "blade_tip_mm": 0.27
+      },
+      {
+        "angle_deg": 128,
+        "windway_width_mm": 2.0,
+        "windway_height_mm": 0.73,
+        "jet_to_labium_mm": 3.73,
+        "edge_offset_mm": 0.14,
+        "blade_tip_mm": 0.28
+      },
+      {
+        "angle_deg": 232,
+        "windway_width_mm": 2.0,
+        "windway_height_mm": 0.75,
+        "jet_to_labium_mm": 4.6,
+        "edge_offset_mm": -0.12,
+        "blade_tip_mm": 0.28
+      }
+    ]
+  }
+}
